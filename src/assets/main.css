@@ -1,0 +1,20 @@
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #fdf5e6; /* Fondo crema global */
+  font-family: sans-serif;
+  /* 1. Ocultamos el cursor en TODA la aplicación por defecto */
+  caret-color: transparent !important;
+}
+
+/* 2. Lo activamos ÚNICAMENTE cuando el usuario hace clic en un input */
+input:focus, textarea:focus {
+  caret-color: auto !important;
+}
+
+/* 3. Evitamos que el logo o los textos estáticos se puedan seleccionar */
+.brand-section, .logo, .logo-img, h1 {
+  user-select: none;
+  outline: none !important;
+}
