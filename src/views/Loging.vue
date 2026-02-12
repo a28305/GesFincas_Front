@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router';
 import AppBrand from '@/components/AppBrand.vue';
 import AuthToggle from '@/components/AuthToggle.vue';
 import PrimaryButton from '@/components/PrimaryButton.vue';
+import axios from 'axios';
 
 const router = useRouter();
 
@@ -11,13 +12,32 @@ const router = useRouter();
 const email = ref('');
 const password = ref('');
 
-const handleLogin = () => {
-  if (email.value === '' || password.value === '') {
-    alert("Por favor, rellena todos los campos");
-    return;
+
+const handleLogin = async () => {
+  try {
+    const response = await axios.post('https://localhost:7152/api/auth/login', {
+      Email: email.value,
+      Password: password.value
+     
+    });
+
+    const { token, hasPisos,userId,role:userRole } = response.data; // Recibimos los nuevos datos
+
+    // Guardamos en el navegador
+    localStorage.setItem('token', token);
+    localStorage.setItem('hasPisos', hasPisos.toString());
+    localStorage.setItem('userId', userId.toString()); // Necesario para asignar pisos
+    localStorage.setItem('role', userRole); // Necesario para mostrar el botón "+
+
+    // Redirección inteligente
+    if (!hasPisos) {
+      router.push('/Select_piso'); // Si es nuevo, a elegir piso
+    } else {
+      router.push('/dashboard'); // Si ya tiene, al inicio
+    }
+  } catch (error) {
+    alert("Error al iniciar sesión");
   }
-  // Navegamos al dashboard tras validar
-  router.push('/dashboard');
 };
 </script>
 
