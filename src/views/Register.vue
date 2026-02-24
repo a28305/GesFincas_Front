@@ -1,8 +1,7 @@
-
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios'; // Importamos Axios
+import axios from 'axios';
 import AppBrand from '@/components/AppBrand.vue';
 import AuthToggle from '@/components/AuthToggle.vue';
 import PrimaryButton from '@/components/PrimaryButton.vue';
@@ -15,38 +14,25 @@ const password = ref('');
 const confirmPassword = ref('');
 
 const handleRegister = async () => {
-  // 1. Validaciones de cliente (Frontend)
-  if (!username.value || !email.value || !password.value) {
-    alert("Por favor, rellena todos los campos.");
-    return;
-  }
-  
   if (password.value !== confirmPassword.value) {
     alert("Las contraseñas no coinciden.");
     return;
   }
 
   try {
-    // 2. Llamada a la API
-    const response = await axios.post('https://localhost:7152/api/auth/register', {
-      Name: username.value, 
+    await axios.post('https://localhost:7152/api/auth/register', {
+      Name: username.value, // Asegúrate de que tu DTO en C# use 'Name'
       Email: email.value,
       Password: password.value
     });
 
-    // 3. Respuesta 
-    alert("¡Usuario registrado correctamente en GesFincas!");
+    alert("¡Registro con éxito! Ahora inicia sesión.");
     router.push('/'); 
-
   } catch (error: any) {
-    // 4. Manejo de errores
-    console.error("Error en el registro:", error);
-    const mensajeError = error.response?.data || "Error al conectar con el servidor";
-    alert(mensajeError);
+    alert(error.response?.data || "Error al registrarse");
   }
 };
 </script>
-
 
 <template>
   <div class="auth-wrapper">
