@@ -1,42 +1,68 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import axios from 'axios';
 import AppBrand from '@/components/AppBrand.vue';
 import AuthToggle from '@/components/AuthToggle.vue';
 import PrimaryButton from '@/components/PrimaryButton.vue';
-import axios from 'axios';
+import { useUserStore } from '@/store/userstore'; 
 
 const router = useRouter();
+const userStore = useUserStore();
 
-// Variables reactivas para capturar los datos
 const email = ref('');
 const password = ref('');
-
 
 const handleLogin = async () => {
   try {
     const response = await axios.post('https://localhost:7152/api/auth/login', {
       Email: email.value,
       Password: password.value
-     
     });
 
-    const { token, hasPisos,userId,role:userRole } = response.data; // Recibimos los nuevos datos
+    const data = response.data;
 
-    // Guardamos en el navegador
+    localStorage.clear();
+    userStore.$reset();
+
+    const token = data.token;
+    const userId = data.userId;
+    const role = data.role || 'vecino';
+    const hasPisos = data.hasPisos ?? false;
+    const nombre = data.name || (email.value?.split('@')[0] ?? 'Usuario');// ← lee data.name
+
     localStorage.setItem('token', token);
-    localStorage.setItem('hasPisos', hasPisos.toString());
-    localStorage.setItem('userId', userId.toString()); // Necesario para asignar pisos
-    localStorage.setItem('role', userRole); // Necesario para mostrar el botón "+
+    localStorage.setItem('userId', String(userId));
+    localStorage.setItem('role', role);
+    localStorage.setItem('hasPisos', String(hasPisos));
 
-    // Redirección inteligente
-    if (!hasPisos) {
-      router.push('/Select_piso'); // Si es nuevo, a elegir piso
-    } else {
-      router.push('/dashboard'); // Si ya tiene, al inicio
+    userStore.setUserData(nombre, role);
+
+    // ── Si ya tiene piso asignado, lo cargamos ──
+    if (hasPisos) {
+      try {
+        const pisoRes = await axios.get(`https://localhost:7152/api/pisos/mi-vivienda/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const piso = pisoRes.data;
+        if (piso && piso.nombre) {
+          userStore.setComunidad(String(userId), piso.nombre);
+        }
+      } catch (pisoErr) {
+        console.warn('⚠️ No se pudo cargar el piso:', pisoErr);
+      }
     }
-  } catch (error) {
-    alert("Error al iniciar sesión");
+
+    // ── Redirección ──
+    if (role === 'admin' || !hasPisos) {
+      router.push('/Select_piso');
+    } else {
+      router.push('/app/dashboard');
+    }
+
+  } catch (error: any) {
+    console.error("Error en login:", error);
+    alert("Credenciales incorrectas");
   }
 };
 </script>
@@ -44,24 +70,10 @@ const handleLogin = async () => {
 <template>
   <div class="login-container">
     <AppBrand :width="120" />
-
     <div class="form-section">
-      <input 
-        v-model="email" 
-        type="email" 
-        placeholder="Email" 
-        class="custom-input" 
-        autofocus
-      >
-      <input 
-        v-model="password" 
-        type="password" 
-        placeholder="Contraseña" 
-        class="custom-input"
-      >
-      
+      <input v-model="email" type="email" placeholder="Email" class="custom-input" autofocus>
+      <input v-model="password" type="password" placeholder="Contraseña" class="custom-input">
       <AuthToggle activeMode="login" />
-
       <PrimaryButton text="Iniciar sesión" @click="handleLogin" />
     </div>
   </div>
@@ -76,7 +88,6 @@ const handleLogin = async () => {
   min-height: 100vh;
   padding: 20px;
 }
-
 .form-section {
   width: 100%;
   max-width: 320px;
@@ -84,14 +95,12 @@ const handleLogin = async () => {
   flex-direction: column;
   gap: 15px;
 }
-
-/* Solo dejamos el CSS del input ya que el resto está en los componentes */
 .custom-input {
   width: 100%;
   padding: 15px 20px;
   border-radius: 25px;
   border: none;
-  background-color: #e8dab2; /* Color café suave */
+  background-color: #e8dab2;
   font-size: 16px;
   box-sizing: border-box;
   outline: none;

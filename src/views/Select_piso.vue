@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router';
 import axios from 'axios';
 import AppBrand from '@/components/AppBrand.vue';
 import PrimaryButton from '@/components/PrimaryButton.vue';
+import { useUserStore } from '@/store/userstore';
 
 interface Piso {
   id_piso: number;
@@ -12,13 +13,13 @@ interface Piso {
 }
 
 const router = useRouter();
+const userStore = useUserStore();
+
 const listaPisos = ref<Piso[]>([]);
 const pisosSeleccionados = ref<number[]>([]);
-
-// Lógica de roles y formularios
 const userRole = ref(localStorage.getItem('role'));
-const mostrarForm = ref(false); // Formulario de creación (Admin)
-const pasoConfirmacion = ref(false); // Segundo paso (Vecino)
+const mostrarForm = ref(false);
+const pasoConfirmacion = ref(false);
 
 const nuevoPiso = ref({ nombre: '', direccion: '' });
 const detallesVivienda = ref({ puerta: '', bloque: '' });
@@ -46,28 +47,36 @@ const crearPiso = async () => {
     mostrarForm.value = false;
     await cargarPisos();
   } catch (error) {
-    alert("Solo los administradores pueden crear pisos");
+    alert("Error al crear edificio");
   }
 };
 
 const togglePiso = (id_piso: number) => {
-  const index = pisosSeleccionados.value.indexOf(id_piso);
-  if (index > -1) pisosSeleccionados.value.splice(index, 1);
-  else pisosSeleccionados.value.push(id_piso);
+  pisosSeleccionados.value = [id_piso];
+  const pisoData = listaPisos.value.find(p => p.id_piso === id_piso);
+  if (pisoData) {
+    // ✅ Guardamos en Pinia Y en localStorage AQUÍ, no esperamos a confirmar
+    userStore.setComunidad(String(pisoData.id_piso), pisoData.nombre);
+    console.log('📌 Piso guardado:', pisoData.nombre, '| localStorage viviendaNombre:', localStorage.getItem('viviendaNombre'));
+  }
 };
 
 const seleccionado = (id_piso: number) => pisosSeleccionados.value.includes(id_piso);
 
-// CAMBIO AQUÍ: Función inteligente según el rol
 const irAConfirmar = () => {
-  if (pisosSeleccionados.value.length > 0) {
-    if (userRole.value === 'admin') {
-      // Si es admin, guardamos directamente sin pedir puerta/bloque
-      guardarSeleccion();
-    } else {
-      // Si es vecino, mostramos el paso de detalles
-      pasoConfirmacion.value = true;
-    }
+  if (pisosSeleccionados.value.length === 0) return;
+
+  // Nos aseguramos de que el piso esté guardado antes de navegar
+  const pisoData = listaPisos.value.find(p => p.id_piso === pisosSeleccionados.value[0]);
+  if (pisoData) {
+    userStore.setComunidad(String(pisoData.id_piso), pisoData.nombre);
+  }
+
+  if (userRole.value === 'admin') {
+    localStorage.setItem('hasPisos', 'true');
+    router.push('/app/dashboard');
+  } else {
+    pasoConfirmacion.value = true;
   }
 };
 
@@ -76,20 +85,17 @@ const guardarSeleccion = async () => {
     const token = localStorage.getItem('token');
     const userId = localStorage.getItem('userId');
 
-    for (const id_piso of pisosSeleccionados.value) {
-      await axios.post('https://localhost:7152/api/pisos/asignar-vecino', {
-        id_user: Number(userId),
-        id_piso: id_piso,
-        // Si es admin, enviamos vacío; si es vecino, los datos del form
-        puerta: userRole.value === 'admin' ? "" : detallesVivienda.value.puerta,
-        bloque: userRole.value === 'admin' ? "" : detallesVivienda.value.bloque
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-    }
+    await axios.post('https://localhost:7152/api/pisos/asignar-vecino', {
+      id_user: parseInt(userId || '0'),
+      id_piso: pisosSeleccionados.value[0],
+      puerta: detallesVivienda.value.puerta || "N/A",
+      bloque: detallesVivienda.value.bloque || "N/A"
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
 
     localStorage.setItem('hasPisos', 'true');
-    router.push('/dashboard');
+    router.push('/app/dashboard');
   } catch (e) {
     alert("Error al guardar la selección");
   }
@@ -99,12 +105,11 @@ const guardarSeleccion = async () => {
 <template>
   <div class="selection-container">
     <AppBrand :width="120" />
-
     <div class="info-section">
       <h2 v-if="!pasoConfirmacion">Selecciona tu comunidad</h2>
       <h2 v-else>Casi listo...</h2>
-      <p v-if="!pasoConfirmacion">Indica en qué edificios resides.</p>
-      <p v-else>Dinos tu bloque y puerta para terminar.</p>
+      <p v-if="!pasoConfirmacion">Hola <strong>{{ userStore.userName }}</strong>, indica dónde resides.</p>
+      <p v-else>Dinos tu bloque y puerta en <strong>{{ userStore.viviendaNombre }}</strong>.</p>
       
       <PrimaryButton 
         v-if="userRole === 'admin' && !pasoConfirmacion" 
@@ -124,27 +129,25 @@ const guardarSeleccion = async () => {
 
         <div class="pisos-grid">
           <div 
-            v-for="piso in listaPisos" 
-            :key="piso.id_piso" 
-            class="piso-card"
-            :class="{ active: seleccionado(piso.id_piso) }"
+            v-for="piso in listaPisos" :key="piso.id_piso" 
+            class="piso-card" :class="{ active: seleccionado(piso.id_piso) }"
             @click="togglePiso(piso.id_piso)"
           >
+            <div class="piso-icon">🏢</div>
             {{ piso.nombre }}
           </div>
         </div>
 
         <PrimaryButton 
           :text="userRole === 'admin' ? 'Confirmar y Entrar' : 'Siguiente'" 
-          @click="irAConfirmar" 
-          :disabled="pisosSeleccionados.length === 0"
+          @click="irAConfirmar" :disabled="pisosSeleccionados.length === 0"
         />
       </div>
 
-      <div v-else class="admin-form-box confirmation-step">
+      <div v-else class="admin-form-box">
+        <div class="selected-badge">Comunidad: {{ userStore.viviendaNombre }}</div>
         <input v-model="detallesVivienda.bloque" placeholder="Bloque (ej: Bloque A)" class="custom-input">
         <input v-model="detallesVivienda.puerta" placeholder="Puerta (ej: 2ºB)" class="custom-input">
-        
         <div class="button-group">
           <PrimaryButton text="Atrás" @click="pasoConfirmacion = false" class="back-btn" />
           <PrimaryButton text="Finalizar y Entrar" @click="guardarSeleccion" />
@@ -155,7 +158,6 @@ const guardarSeleccion = async () => {
 </template>
 
 <style scoped>
-/* Mantengo tus estilos originales para que no cambie el diseño */
 .selection-container {
   display: flex;
   flex-direction: column;
@@ -165,82 +167,83 @@ const guardarSeleccion = async () => {
   padding: 20px;
   background-color: #fdfaf3;
 }
-
 .info-section {
   text-align: center;
   margin-bottom: 20px;
   color: #5d4037;
 }
-
 .form-section {
   width: 100%;
-  max-width: 360px;
+  max-width: 400px;
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
-
 .admin-btn {
   background-color: #5d4037 !important;
   margin-top: 15px;
   transform: scale(0.9);
 }
-
 .admin-form-box {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 15px;
-  background-color: #f5f5f5;
+  gap: 12px;
+  padding: 20px;
+  background-color: #ffffff;
   border-radius: 20px;
-  border: 2px dashed #e8dab2;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
   margin-bottom: 20px;
 }
-
+.selected-badge {
+  background: #fff3e0;
+  color: #ff8c00;
+  padding: 8px;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
 .custom-input {
   width: 100%;
   padding: 12px 15px;
-  border-radius: 20px;
-  border: none;
-  background-color: #e8dab2;
+  border-radius: 12px;
+  border: 1px solid #e8dab2;
+  background-color: #fdfaf3;
   outline: none;
 }
-
 .pisos-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  max-height: 300px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  max-height: 350px;
   overflow-y: auto;
   padding: 10px;
   margin-bottom: 20px;
 }
-
 .piso-card {
   padding: 20px 10px;
   border-radius: 15px;
-  background-color: #e8dab2;
+  background-color: white;
   cursor: pointer;
   text-align: center;
   font-weight: bold;
+  border: 2px solid transparent;
   transition: all 0.3s ease;
   color: #5d4037;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
-
+.piso-icon { font-size: 1.5rem; margin-bottom: 5px; }
 .piso-card.active {
-  background-color: #ff8c00;
-  color: white;
-  transform: scale(1.05);
+  border-color: #ff8c00;
+  background-color: #fff9f2;
+  color: #ff8c00;
+  transform: translateY(-3px);
 }
-
 .button-group {
   display: flex;
   gap: 10px;
-  margin-top: 10px;
 }
-
 .back-btn {
-  background-color: #5d4037 !important;
-  flex: 0.5;
+  background-color: #a1887f !important;
 }
 </style>
