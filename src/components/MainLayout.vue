@@ -1,12 +1,39 @@
+<script setup lang="ts">
+import { ref, computed } from 'vue';
+import { useUserStore } from '@/store/userstore';
+import { useRouter } from 'vue-router';
+import AppBrand from '../components/AppBrand.vue';
+
+const userStore = useUserStore();
+const router = useRouter();
+const isMenuOpen = ref(false);
+
+// IMPORTANTE: Sacamos los datos de Pinia, no de otro .vue
+const nombreUsuario = computed(() => userStore.userName);
+const nombreVivienda = computed(() => userStore.viviendaNombre);
+const userRole = computed(() => userStore.userRole);
+
+const logout = () => {
+  localStorage.clear();
+  userStore.$reset();
+  router.push('/login');
+};
+
+const getInitials = (name: string) => {
+  if (!name || name === 'Usuario') return 'U';
+  return name.trim().substring(0, 2).toUpperCase();
+};
+</script>
+
 <template>
   <div class="app-wrapper">
     <button class="mobile-toggle" @click="isMenuOpen = !isMenuOpen">
-      ☰
+      {{ isMenuOpen ? '✕' : '☰' }}
     </button>
 
     <aside :class="['sidebar', { 'mobile-open': isMenuOpen }]">
       <div class="logo-container">
-        <img src="../assets/logo_gesfincas.png" alt="GesFincas" class="sidebar-logo">
+        <AppBrand :width="200" class="brand-logo"/>
       </div>
       
       <nav class="nav-links">
@@ -21,175 +48,273 @@
         <router-link to="/app/anuncios" class="nav-item" @click="isMenuOpen = false">
           <span class="icon">📢</span> Tablón
         </router-link>
+
+        <router-link to="/app/comunes" class="nav-item" @click="isMenuOpen = false">
+          <span class="icon">🌳</span> Zonas Comunes
+        </router-link>
+
+        <router-link to="/app/pagos" class="nav-item" @click="isMenuOpen = false">
+          <span class="icon">💳</span> Pagos
+        </router-link>
         
+        <router-link to="/app/documentos" class="nav-item" @click="isMenuOpen = false">
+          <span class="icon">📄</span> Documentos
+        </router-link>
+
         <div v-if="userRole === 'admin'" class="admin-section">
           <div class="divider">ADMINISTRACIÓN</div>
           <router-link to="/app/admin/vecinos" class="nav-item" @click="isMenuOpen = false">
             <span class="icon">👥</span> Gestión Vecinos
           </router-link>
-          <router-link to="/app/admin/comunidades" class="nav-item" @click="isMenuOpen = false">
-            <span class="icon">🏢</span> Comunidades
+          <router-link to="/app/admin/fincas" class="nav-item" @click="isMenuOpen = false">
+            <span class="icon">🏢</span> Configurar Fincas
           </router-link>
         </div>
-      </nav>
 
-      <button class="logout-btn" @click="handleLogout">
-        <span class="icon">🚪</span> Cerrar Sesión
-      </button>
+        <div class="sidebar-footer">
+          <div class="user-profile-mini">
+            <span class="avatar-mini">{{ getInitials(nombreUsuario) }}</span>
+            <div class="user-info-mini">
+              <span class="name-mini">{{ nombreUsuario }}</span>
+              <small class="vivienda-mini">{{ nombreVivienda }}</small>
+            </div>
+          </div>
+        </div>
+      </nav>
     </aside>
 
     <main class="main-content">
-      <router-view /> 
+      <router-view />
     </main>
 
     <div v-if="isMenuOpen" class="overlay" @click="isMenuOpen = false"></div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-
-const isMenuOpen = ref(false);
-const userRole = localStorage.getItem('role');
-const router = useRouter();
-
-const handleLogout = () => {
-  localStorage.clear();
-  router.push('/'); // Te manda al login (que es la ruta '/')
-};
-</script>
-
 <style scoped>
+/* ESTRUCTURA PRINCIPAL */
 .app-wrapper {
   display: flex;
-  min-height: 100vh;
-  background-color: #f8f9fa; /* Fondo gris claro profesional */
+  /* Fijamos la altura al tamaño de la ventana */
+  height: 100vh; 
+  width: 100vw;
+  overflow: hidden; /* Evita que toda la página haga scroll */
+  background-color: #f4f7f6; 
+  position: fixed; /* Opcional: fija el contenedor a la pantalla */
+    top: 0;
+     left: 0;
 }
 
+/* SIDEBAR (ESCRITORIO) */
 .sidebar {
   width: 260px;
-  background-color: #e8dab2; /* Café oscuro corporativo */
-  color: white;
+  min-width: 260px; 
+  max-width: 260px;
+  height: 100vh;
+  background-color: #FEEBC6;
   display: flex;
   flex-direction: column;
-  padding: 25px 15px;
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  z-index: 1000;
+  padding: 20px;
+  transition: all 0.3s ease;
+  z-index: 100;
+  flex-shrink: 0; /* Evita que la barra se encoja */
+  overflow-x: hidden;
+  overflow-y: auto; /* Si tienes muchos links, el sidebar tendrá su propio scroll */
 }
 
-.sidebar-logo {
-  width: 100%;
-  max-width: 180px;
+.logo-container {
+  text-align: center;
   margin-bottom: 30px;
-  padding: 0 10px;
+  padding: 10px;
 }
-
+/* NAVEGACIÓN */
 .nav-links {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  flex: 1;
+  gap: 6px;
+  flex: 1; /* Esto permite que el contenido crezca y empuje el footer al fondo */
 }
 
 .nav-item {
   display: flex;
   align-items: center;
   padding: 12px 15px;
-  color: #e0d4d1;
+  color: #a0a0b8;
   text-decoration: none;
   border-radius: 10px;
-  transition: all 0.3s;
-  font-weight: 500;
+  transition: 0.3s;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  font-size: 0.92rem;
+  cursor: pointer;
 }
 
 .nav-item:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
   color: white;
 }
 
-/* Estilo para la página activa */
 .router-link-active {
-  background-color: #ff8c00 !important; /* Naranja corporativo */
+  background-color: #ff8c00 !important;
   color: white !important;
-  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.2);
 }
 
-.icon {
-  margin-right: 12px;
-  font-size: 1.2rem;
-}
+.icon { margin-right: 12px; font-size: 1.1rem; }
 
+/* SECCIÓN ADMINISTRACIÓN */
 .admin-section {
-  margin-top: 20px;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .divider {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: bold;
-  color: #a1887f;
+  color: #636e72;
   margin-bottom: 10px;
   padding-left: 15px;
   letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
-.main-content {
-  flex: 1;
-  padding: 30px;
-  overflow-y: auto;
+/* FOOTER DEL SIDEBAR (PERFIL Y LOGOUT) */
+.sidebar-footer {
+  margin-top:0%; /* Empuja el perfil abajo del todo */
+  padding-top: 40px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-left: 40px;
 }
 
-.logout-btn {
-  margin-top: auto;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
+.user-profile-mini {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   padding: 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background 0.3s;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+.avatar-mini {
+  width: 35px;
+  height: 35px;
+  background: #ff8c00;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 0.85rem;
+  font-weight: bold;
+  flex-shrink: 0;
 }
 
-.logout-btn:hover {
-  background: #c62828; /* Rojo al pasar el ratón */
-  border-color: transparent;
+.user-info-mini {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-/* RESPONSIVE MÓVIL */
+.name-mini { 
+  font-size: 0.88rem; 
+  font-weight: 600; 
+  white-space: nowrap; 
+  text-overflow: ellipsis; 
+  overflow: hidden; 
+}
+
+.vivienda-mini { 
+  font-size: 0.72rem; 
+  color: #a0a0b8; 
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.logout-link {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #ff6b6b;
+  padding: 10px 15px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  transition: 0.3s;
+}
+
+.logout-link:hover { 
+  background: rgba(255, 107, 107, 0.1); 
+}
+
+/* CONTENIDO PRINCIPAL */
+.main-content { 
+  flex: 1; 
+  display: flex;
+  flex-direction: column;
+  /* AQUÍ ESTÁ EL TRUCO: Solo esta zona tiene scroll */
+  height: 100vh;
+  overflow-y: auto; 
+  position: relative; 
+}
+.main-content::-webkit-scrollbar {
+  width: 8px;
+}
+.main-content::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+/* BOTÓN HAMBURGUESA (OCULTO EN PC) */
+.mobile-toggle {
+  display: none; 
+}
+
+/* --- MÓVIL (PANTALLAS PEQUEÑAS) --- */
 @media (max-width: 768px) {
-  .sidebar {
-    position: fixed;
-    left: -260px;
-    transition: left 0.3s ease;
+  .sidebar { 
+    position: fixed; 
+    left: -260px; 
+    height: 100vh; 
+    width: 260px;
   }
-  .sidebar.mobile-open {
-    left: 0;
+  
+  .sidebar.mobile-open { 
+    left: 0; 
   }
-  .overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 999;
-  }
+
   .mobile-toggle {
-    display: block;
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: #ff8c00;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    color: white;
-    font-size: 24px;
-    border: none;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    z-index: 1001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed; 
+    top: 15px; 
+    right: 15px; 
+    z-index: 1000;
+    background: #FFA040; 
+    color: white; 
+    border: none; 
+    padding: 10px; 
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  }
+
+  .overlay { 
+    position: fixed; 
+    inset: 0; 
+    background: rgba(0,0,0,0.5); 
+    backdrop-filter: blur(2px);
+    z-index: 90; 
   }
 }
 </style>
