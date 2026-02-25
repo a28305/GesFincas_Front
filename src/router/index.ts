@@ -47,8 +47,27 @@ const router = createRouter({
           name: 'anuncios',
           component: () => import('@/views/Anuncios.vue'),
           meta: { requiresAuth: true }
+        },
+        {
+        path: 'comunes',
+          name: 'comunes',
+          component: () => import('@/views/Comunes.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+        path: 'pagos',
+          name: 'pagos',
+          component: () => import('@/views/Pagos.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+        path: 'documentos',
+          name: 'documentos',
+          component: () => import('@/views/Documentos.vue'),
+          meta: { requiresAuth: true }
         }
       ]
+              
     }
   ]
 })

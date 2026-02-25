@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useUserStore } from '@/store/userstore';
 import axios from 'axios';
+import Header from '@/components/Header.vue';
+import Footer from '@/components/Footer.vue';
 
 const userStore = useUserStore();
-
-const nombreUsuario = computed(() => userStore.userName || 'Usuario');
-const nombreVivienda = computed(() => userStore.viviendaNombre || 'Cargando...');
 
 const incidencias = ref([
   { id: 1, titulo: 'Ascensor averiado en Bloque A', desc: 'El ascensor principal no funciona desde esta mañana', fecha: '16/1/2024', status: 'NUEVA', color: 'red' },
@@ -21,22 +20,19 @@ const cargarDatosUsuario = async () => {
   const userId = localStorage.getItem('userId');
   const token = localStorage.getItem('token');
 
-  // 1. Restaurar nombre desde localStorage si el store está vacío
   if ((!userStore.userName || userStore.userName === 'Usuario') && storedName) {
     userStore.userName = storedName;
   }
 
-  // 2. Restaurar vivienda desde localStorage si ya existe — SIN llamar a la API
   if (storedPiso && storedPiso !== 'null' && storedPiso !== 'Comunidad no seleccionada') {
     if (!userStore.fincaActivaId && storedFincaId) {
       userStore.setComunidad(storedFincaId, storedPiso);
     } else if (userStore.viviendaNombre === 'Comunidad no seleccionada') {
       userStore.viviendaNombre = storedPiso;
     }
-    return; // ✅ Ya tenemos todo, no hace falta llamar a la API
+    return;
   }
 
-  // 3. Solo llamamos a la API si realmente no hay ningún dato de vivienda
   if (userId && token && userId !== 'null') {
     try {
       const res = await axios.get(`https://localhost:7152/api/pisos/mi-vivienda/${userId}`, {
@@ -50,7 +46,6 @@ const cargarDatosUsuario = async () => {
       }
     } catch (e) {
       console.error('Error recuperando piso desde API', e);
-      // No sobreescribimos con "Error al cargar" si ya hay algo en el store
       if (!userStore.viviendaNombre || userStore.viviendaNombre === 'Comunidad no seleccionada') {
         userStore.viviendaNombre = 'Sin vivienda asignada';
       }
@@ -61,32 +56,12 @@ const cargarDatosUsuario = async () => {
 onMounted(() => {
   cargarDatosUsuario();
 });
-
-const getInitials = (name: string) => {
-  if (!name || name === 'Usuario' || name.length < 2) return 'U';
-  return name.trim().substring(0, 2).toUpperCase();
-};
 </script>
 
 <template>
   <div class="dashboard-container">
-    <header class="top-bar">
-      <div class="welcome-text">
-        <h1>Resumen de {{ nombreVivienda }}</h1>
-        <p>Bienvenido de nuevo, {{ nombreUsuario }}</p>
-      </div>
-
-      <div class="user-profile">
-        <div class="user-info">
-          <span class="avatar">{{ getInitials(nombreUsuario) }}</span>
-          <div class="user-details">
-            <span class="name">{{ nombreUsuario }}</span>
-            <small class="vivienda-tag">{{ nombreVivienda }}</small>
-          </div>
-          <span class="arrow">▼</span>
-        </div>
-      </div>
-    </header>
+    
+    <Header />
 
     <div class="stats-grid">
       <div class="stat-card">
@@ -166,22 +141,25 @@ const getInitials = (name: string) => {
         </div>
       </aside>
     </div>
+
+    <Footer />
+
   </div>
 </template>
 
 <style scoped>
-.dashboard-container { background-color: #f4f7f6; min-height: 100vh; padding: 0 30px 30px 30px; font-family: 'Inter', sans-serif; }
-.top-bar { display: flex; justify-content: space-between; align-items: center; padding: 30px 0; }
-.welcome-text h1 { font-size: 1.6rem; color: #2c3e50; margin: 0; }
-.welcome-text p { color: #95a5a6; margin: 5px 0 0 0; }
-.user-info { display: flex; align-items: center; gap: 12px; background: white; padding: 8px 20px; border-radius: 40px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-.user-details { display: flex; flex-direction: column; line-height: 1.2; }
-.name { font-weight: 700; font-size: 0.95rem; color: #2c3e50; }
-.vivienda-tag { font-size: 0.75rem; color: #ff8c00; font-weight: 600; }
-.avatar { background: #ff8c00; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+.dashboard-container { 
+  background-color: #f4f7f6; 
+  min-height: 100vh; 
+  padding: 0 30px 30px 30px; 
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
 .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
 .stat-card { background: white; padding: 20px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-.main-layout-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; }
+.main-layout-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; flex: 1; }
 .white-box { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 25px; }
 .box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 .orange-light { background: #fff3e0; color: #ff8c00; }
