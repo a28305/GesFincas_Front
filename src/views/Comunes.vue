@@ -1,47 +1,22 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import { ref } from 'vue';
 import Header from '@/components/Header.vue';
 import Footer from '@/components/Footer.vue';
 
-interface Incidencia {
-  id?: number;
-  asunto: string;
-  descripcion: string;
-  estado: string;
-}
+// Definimos las zonas comunes disponibles
+const zonasComunes = ref([
+  { id: 1, nombre: 'Piscina', icono: 'swimming_pool', disponible: true },
+  { id: 2, nombre: 'Pista de Pádel', icono: 'sports_tennis', disponible: true },
+  { id: 3, nombre: 'Gimnasio', icono: 'fitness_center', disponible: true },
+  { id: 4, nombre: 'Sala Social', icono: 'groups', disponible: false },
+  { id: 5, nombre: 'Solárium', icono: 'wb_sunny', disponible: true }
+]);
 
-const listaIncidencias = ref<Incidencia[]>([]);
-const nuevaIncidencia = ref({ asunto: '', descripcion: '' });
-const API_URL = 'http://127.0.0.1:8000/incidencias';
-
-const cargarDatos = async () => {
-  try {
-    const res = await axios.get(API_URL);
-    listaIncidencias.value = res.data;
-  } catch (e) {
-    listaIncidencias.value = [
-      { id: 1, asunto: 'Ejemplo: Ascensor', descripcion: 'No funciona el botón del piso 3', estado: 'Pendiente' }
-    ];
-  }
+const seleccionarZona = (zona: string) => {
+  console.log("Zona seleccionada:", zona);
+  // Aquí podrías navegar a una página de reserva específica:
+  // router.push(`/reservas/${zona.toLowerCase()}`);
 };
-
-const enviarIncidencia = async () => {
-  if (!nuevaIncidencia.value.asunto || !nuevaIncidencia.value.descripcion) return;
-  try {
-    await axios.post(API_URL, {
-      asunto: nuevaIncidencia.value.asunto,
-      descripcion: nuevaIncidencia.value.descripcion,
-      id_piso: 1
-    });
-    nuevaIncidencia.value = { asunto: '', descripcion: '' };
-    await cargarDatos();
-  } catch (e) {
-    alert("Error al conectar con el servidor");
-  }
-};
-
-onMounted(cargarDatos);
 </script>
 
 <template>
@@ -51,41 +26,26 @@ onMounted(cargarDatos);
     <main class="container">
       <div class="logo-section">
         <img src="@/assets/logo_gesfincas.png" alt="Logo" class="brand-logo" />
-        <h1 class="brand-title">GesFincas</h1>
+        <h1 class="brand-title">ZONAS COMUNES</h1>
       </div>
 
-      <div class="form-card">
-        <h2 class="form-title">Reportar Incidencia</h2>
+      <div class="options-grid">
+        <h2 class="section-subtitle">Selecciona una instalación</h2>
         
-        <input 
-          v-model="nuevaIncidencia.asunto" 
-          type="text" 
-          placeholder="Asunto" 
-          class="pill-input"
-        />
-        
-        <textarea 
-          v-model="nuevaIncidencia.descripcion" 
-          placeholder="Descripción detallada" 
-          class="pill-input textarea"
-        ></textarea>
-        
-        <button @click="enviarIncidencia" class="btn-primary-orange">
-          Enviar Incidencia
-        </button>
-      </div>
-
-      <div class="history-section">
-        <h2 class="form-title">Historial</h2>
-        
-        <div v-for="item in listaIncidencias" :key="item.id" class="incidencia-pill">
-          <div class="incidencia-content">
-            <span class="incidencia-subject">{{ item.asunto }}</span>
-            <span class="incidencia-desc">{{ item.descripcion }}</span>
+        <div 
+          v-for="zona in zonasComunes" 
+          :key="zona.id" 
+          class="zona-card"
+          :class="{ 'no-disponible': !zona.disponible }"
+          @click="zona.disponible && seleccionarZona(zona.nombre)"
+        >
+          <div class="zona-info">
+            <span class="zona-name">{{ zona.nombre }}</span>
+            <span class="zona-status">
+              {{ zona.disponible ? 'Disponible' : 'Mantenimiento' }}
+            </span>
           </div>
-          <div class="status-tag" :class="item.estado.toLowerCase()">
-            {{ item.estado }}
-          </div>
+          <div class="arrow-icon">➔</div>
         </div>
       </div>
     </main>
@@ -100,7 +60,6 @@ onMounted(cargarDatos);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  font-family: sans-serif;
 }
 
 .container {
@@ -123,100 +82,70 @@ onMounted(cargarDatos);
 .brand-title {
   color: #F2994A;
   font-size: 1.5rem;
-  letter-spacing: 3px;
+  letter-spacing: 2px;
   margin-top: 10px;
   font-weight: bold;
 }
 
-.form-card {
+.section-subtitle {
+  color: #888;
+  font-size: 1rem;
+  margin-bottom: 20px;
+  padding-left: 10px;
+}
+
+.options-grid {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
-.form-title {
-  color: #888;
-  font-size: 1rem;
-  margin-bottom: 5px;
-  padding-left: 15px;
-}
-
-.pill-input {
-  background-color: #E9E1CC;
-  border: none;
-  border-radius: 50px;
-  padding: 18px 25px;
-  font-size: 1rem;
-  width: 100%;
-  outline: none;
-  color: #555;
-}
-
-.textarea {
-  border-radius: 25px;
-  min-height: 100px;
-  resize: none;
-}
-
-.btn-primary-orange {
-  background-color: #F2994A;
-  color: white;
-  border: none;
-  border-radius: 50px;
-  padding: 18px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  cursor: pointer;
-  margin-top: 10px;
-  transition: opacity 0.2s;
-}
-
-.btn-primary-orange:hover {
-  opacity: 0.9;
-}
-
-.history-section {
-  margin-top: 40px;
-}
-
-.incidencia-pill {
+.zona-card {
   background-color: white;
   border-radius: 50px;
-  padding: 12px 25px;
-  margin-bottom: 12px;
+  padding: 20px 30px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: transform 0.2s, background-color 0.2s;
 }
 
-.incidencia-content {
+.zona-card:hover {
+  transform: translateX(5px);
+  background-color: #fefefe;
+}
+
+.zona-info {
   display: flex;
   flex-direction: column;
-  max-width: 70%;
 }
 
-.incidencia-subject {
+.zona-name {
   font-weight: bold;
   color: #333;
-  font-size: 0.9rem;
+  font-size: 1.1rem;
 }
 
-.incidencia-desc {
+.zona-status {
   font-size: 0.8rem;
-  color: #777;
+  color: #F2994A;
 }
 
-.status-tag {
-  font-size: 0.7rem;
-  font-weight: bold;
-  padding: 5px 15px;
-  border-radius: 20px;
-  background-color: #E9E1CC;
+.no-disponible {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: grayscale(1);
+}
+
+.no-disponible .zona-status {
   color: #888;
-  text-transform: uppercase;
 }
 
-.pendiente { background-color: #FDF6E3; color: #F2994A; }
-.resuelta { background-color: #D4EDDA; color: #155724; }
+.arrow-icon {
+  color: #F2994A;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
 </style>
