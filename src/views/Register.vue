@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useUiStore } from '@/store/Uistore';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import AppBrand from '@/components/AppBrand.vue';
@@ -7,6 +8,7 @@ import AuthToggle from '@/components/AuthToggle.vue';
 import PrimaryButton from '@/components/PrimaryButton.vue';
 
 const router = useRouter();
+const ui = useUiStore();
 
 const username = ref('');
 const email = ref('');
@@ -15,7 +17,7 @@ const confirmPassword = ref('');
 
 const handleRegister = async () => {
   if (password.value !== confirmPassword.value) {
-    alert("Las contraseñas no coinciden.");
+    ui.warn("Atención", "Las contraseñas no coinciden");
     return;
   }
 
@@ -26,10 +28,10 @@ const handleRegister = async () => {
       Password: password.value
     });
 
-    alert("¡Registro con éxito! Ahora inicia sesión.");
+    ui.success("¡Registro exitoso!", "Ahora puedes iniciar sesión");
     router.push('/'); 
   } catch (error: any) {
-    alert(error.response?.data || "Error al registrarse");
+    ui.error("Error", String(error.response?.data || "Error al registrarse"));
   }
 };
 </script>

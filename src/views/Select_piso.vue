@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useUiStore } from '@/store/Uistore';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import AppBrand from '@/components/AppBrand.vue';
@@ -14,6 +15,7 @@ interface Piso {
 
 const router = useRouter();
 const userStore = useUserStore();
+const ui = useUiStore();
 
 const listaPisos = ref<Piso[]>([]);
 const pisosSeleccionados = ref<number[]>([]);
@@ -47,7 +49,7 @@ const crearPiso = async () => {
     mostrarForm.value = false;
     await cargarPisos();
   } catch (error) {
-    alert("Error al crear edificio");
+    ui.error("Error", "No se pudo crear el edificio");
   }
 };
 
@@ -97,7 +99,7 @@ const guardarSeleccion = async () => {
     localStorage.setItem('hasPisos', 'true');
     router.push('/app/dashboard');
   } catch (e) {
-    alert("Error al guardar la selección");
+    ui.error("Error", "No se pudo guardar la selección");
   }
 };
 </script>

@@ -3,11 +3,13 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import AppBrand from '@/components/AppBrand.vue';
+import { useUiStore } from '@/store/Uistore';
 import AuthToggle from '@/components/AuthToggle.vue';
 import PrimaryButton from '@/components/PrimaryButton.vue';
 import { useUserStore } from '@/store/userstore'; 
 
 const router = useRouter();
+const ui = useUiStore();
 const userStore = useUserStore();
 
 const email = ref('');
@@ -45,8 +47,10 @@ const handleLogin = async () => {
           headers: { Authorization: `Bearer ${token}` }
         });
         const piso = pisoRes.data;
-        if (piso && piso.nombre) {
-          userStore.setComunidad(String(userId), piso.nombre);
+        if (piso && piso.id_piso) {
+          userStore.setComunidad(String(piso.id_piso), piso.nombre);
+        } else if (piso && piso.nombre) {
+          userStore.setComunidad(String(piso.Id_piso || userId), piso.nombre || piso.Nombre);
         }
       } catch (pisoErr) {
         console.warn('⚠️ No se pudo cargar el piso:', pisoErr);
@@ -62,7 +66,7 @@ const handleLogin = async () => {
 
   } catch (error: any) {
     console.error("Error en login:", error);
-    alert("Credenciales incorrectas");
+    ui.error("Error de acceso", "Credenciales incorrectas");
   }
 };
 </script>

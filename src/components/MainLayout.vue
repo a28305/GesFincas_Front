@@ -3,6 +3,7 @@ import { ref, computed } from 'vue';
 import { useUserStore } from '@/store/userstore';
 import { useRouter } from 'vue-router';
 import AppBrand from '../components/AppBrand.vue';
+import LangSelector from '../components/LangSelector.vue';
 
 const userStore = useUserStore();
 const router = useRouter();
@@ -120,12 +121,22 @@ const getInitials = (name: string) => {
   flex-shrink: 0; /* Evita que la barra se encoja */
   overflow-x: hidden;
   overflow-y: auto; /* Si tienes muchos links, el sidebar tendrá su propio scroll */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.sidebar::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
 }
 
 .logo-container {
   text-align: center;
   margin-bottom: 30px;
   padding: 10px;
+  user-select: none;
+  pointer-events: none;
+  outline: none;
+  -webkit-user-select: none;
 }
 /* NAVEGACIÓN */
 .nav-links {

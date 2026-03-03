@@ -1,39 +1,38 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Loging from '../views/Loging.vue'
-import Register from '@/views/Register.vue'
-import Select_piso from '@/views/Select_piso.vue'
-// IMPORTANTE: Importa el Layout y las vistas nuevas
 import MainLayout from '../components/MainLayout.vue'
-import Dashboard from '@/views/Dashboard.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
+      name: 'landing',
+      component: () => import('@/views/Landing.vue')
+    },
+    {
+      path: '/login',
       name: 'login',
-      component: Loging
+      component: () => import('@/views/Loging.vue')
     },
     {
       path: '/register',
       name: 'register',
-      component: Register
+      component: () => import('@/views/Register.vue')
     },
     {
       path: '/Select_piso',
       name: 'Select_piso',
-      component: Select_piso
+      component: () => import('@/views/Select_piso.vue')
     },
-    // RUTAS CON MENÚ LATERAL (Layout)
     {
-      path: '/app', // Usamos un prefijo para agruparlas
+      path: '/app',
       component: MainLayout,
       redirect: '/app/dashboard',
       children: [
         {
           path: 'dashboard',
           name: 'dashboard',
-          component: Dashboard,
+          component: () => import('@/views/Dashboard.vue'),
           meta: { requiresAuth: true }
         },
         {
@@ -49,41 +48,53 @@ const router = createRouter({
           meta: { requiresAuth: true }
         },
         {
-        path: 'comunes',
+          path: 'comunes',
           name: 'comunes',
           component: () => import('@/views/Comunes.vue'),
           meta: { requiresAuth: true }
         },
         {
-        path: 'pagos',
+          path: 'pagos',
           name: 'pagos',
           component: () => import('@/views/Pagos.vue'),
           meta: { requiresAuth: true }
         },
         {
-        path: 'documentos',
+          path: 'documentos',
           name: 'documentos',
           component: () => import('@/views/Documentos.vue'),
           meta: { requiresAuth: true }
+        },
+        {
+          path: 'admin/vecinos',
+          name: 'admin-vecinos',
+          component: () => import('@/views/AdminVecinos.vue'),
+          meta: { requiresAuth: true, requiresAdmin: true }
+        },
+        {
+          path: 'admin/fincas',
+          name: 'admin-fincas',
+          component: () => import('@/views/AdminFincas.vue'),
+          meta: { requiresAuth: true, requiresAdmin: true }
         }
       ]
-              
     }
   ]
 })
 
-// GUARDIA PARA EVITAR EL ERROR "NULL"
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token');
   const userId = localStorage.getItem('userId');
+  const role = localStorage.getItem('role');
 
-  // Si la ruta requiere autenticación y no hay datos, al login
   if (to.meta.requiresAuth && (!token || !userId || userId === 'null')) {
     localStorage.clear();
-    next('/');
+    next('/login');
+  } else if (to.meta.requiresAdmin && role !== 'admin') {
+    next('/app/dashboard');
   } else {
     next();
   }
-});
+})
 
 export default router
