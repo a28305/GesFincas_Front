@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
+import { useUserStore } from './userstore';
 
 export interface Anuncio {
   id_anuncio?: number;
@@ -8,6 +9,7 @@ export interface Anuncio {
   fechaPublicacion?: string;
   prioridad: string;
   foto_url?: string;
+  id_piso?: number;
 }
 
 export const useAnuncioStore = defineStore('anuncios', {
@@ -24,14 +26,18 @@ export const useAnuncioStore = defineStore('anuncios', {
   },
 
   actions: {
+    // MODIFICADO: Ahora filtra por piso (igual que incidencias)
     async fetchAnuncios() {
       const token = localStorage.getItem('token');
-      if (!token) return;
+      const userStore = useUserStore();
+      const idPiso = userStore.fincaActivaId;
+
+      if (!token || !idPiso || idPiso === 'undefined' || idPiso === 'null') return;
 
       this.loading = true;
       this.error = null;
       try {
-        const res = await axios.get('https://localhost:7152/api/Anuncios', {
+        const res = await axios.get(`https://localhost:7152/api/Anuncios/piso/${idPiso}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         this.listaAnuncios = res.data;
@@ -43,11 +49,20 @@ export const useAnuncioStore = defineStore('anuncios', {
       }
     },
 
+    // MODIFICADO: Añade id_piso al crear
     async crearAnuncio(nuevo: Anuncio) {
       const token = localStorage.getItem('token');
+      const userStore = useUserStore();
+
+      const payload = {
+        ...nuevo,
+        id_piso: Number(userStore.fincaActivaId),
+        foto_url: nuevo.foto_url || ''
+      };
+
       this.loading = true;
       try {
-        await axios.post('https://localhost:7152/api/Anuncios', nuevo, {
+        await axios.post('https://localhost:7152/api/Anuncios', payload, {
           headers: { Authorization: `Bearer ${token}` }
         });
         await this.fetchAnuncios();

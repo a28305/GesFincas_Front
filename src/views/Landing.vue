@@ -23,7 +23,7 @@ const router = useRouter();
         <p>GesFincas te permite gestionar incidencias, anuncios, pagos y zonas comunes de tu comunidad de vecinos desde un solo lugar.</p>
         <div class="hero-buttons">
           <button class="btn-cta" @click="router.push('/register')">Empezar gratis</button>
-          <button class="btn-secondary" @click="router.push('/')">Ya tengo cuenta</button>
+          <button class="btn-secondary" @click="router.push('/login')">Ya tengo cuenta</button>
         </div>
       </div>
       <div class="hero-visual">

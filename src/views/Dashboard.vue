@@ -12,6 +12,21 @@ const userStore = useUserStore();
 const incidenciaStore = useIncidenciaStore();
 const mostrarModal = ref(false);
 
+// Pagos del usuario
+const misPagos = ref<any[]>([]);
+const cargandoPagos = ref(false);
+const pagosAlDia = computed(() => misPagos.value.filter(p => p.estado === 'Pagado').length);
+const pagosPendientes = computed(() => misPagos.value.filter(p => p.estado === 'Pendiente').length);
+const pagosVencidos = computed(() => misPagos.value.filter(p => {
+  if (p.estado === 'Pagado') return false;
+  if (!p.fechaVencimiento) return false;
+  return new Date(p.fechaVencimiento) < new Date();
+}).length);
+
+// Reservas del usuario
+const misReservas = ref<any[]>([]);
+const cargandoReservas = ref(false);
+
 const incidencias = computed(() => incidenciaStore.listaIncidencias);
 
 const totalNuevas = computed(() => incidencias.value.filter(i => i.estado === 'Nueva').length);
@@ -137,7 +152,43 @@ const inicializarDashboard = async () => {
   if (userStore.fincaActivaId && userStore.fincaActivaId !== 'null' && token) {
     await incidenciaStore.fetchIncidencias();
   }
+
+  await fetchPagos();
+  await fetchReservas();
 };
+
+async function fetchPagos(): Promise<void> {
+  const token = localStorage.getItem('token');
+  const userId = localStorage.getItem('userId');
+  if (!token || !userId) return;
+  cargandoPagos.value = true;
+  try {
+    const res = await axios.get(`https://localhost:7152/api/Pagos/usuario/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    misPagos.value = res.data;
+  } catch { misPagos.value = []; }
+  finally { cargandoPagos.value = false; }
+}
+
+async function fetchReservas(): Promise<void> {
+  const token = localStorage.getItem('token');
+  const userId = localStorage.getItem('userId');
+  if (!token || !userId) return;
+  cargandoReservas.value = true;
+  try {
+    const res = await axios.get(`https://localhost:7152/api/Reservas/usuario/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    misReservas.value = res.data;
+  } catch { misReservas.value = []; }
+  finally { cargandoReservas.value = false; }
+}
+
+function formatFechaReserva(fecha: string): string {
+  if (!fecha) return '';
+  return new Date(fecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+}
 
 onMounted(() => {
   inicializarDashboard();
@@ -199,9 +250,9 @@ onMounted(() => {
             <router-link to="/app/pagos" class="view-all">Ver historial</router-link>
           </div>
           <div class="payments-grid">
-            <div class="pay-card green-soft"><p>Pagos al día</p><strong>4</strong></div>
-            <div class="pay-card yellow-soft"><p>Pendientes</p><strong>2</strong></div>
-            <div class="pay-card red-soft"><p>Vencidos</p><strong>0</strong></div>
+            <div class="pay-card green-soft"><p>Pagos al día</p><strong>{{ pagosAlDia }}</strong></div>
+            <div class="pay-card yellow-soft"><p>Pendientes</p><strong>{{ pagosPendientes }}</strong></div>
+            <div class="pay-card red-soft"><p>Vencidos</p><strong>{{ pagosVencidos }}</strong></div>
           </div>
         </section>
       </div>
@@ -211,8 +262,33 @@ onMounted(() => {
           <h3>Acciones Rápidas</h3>
           <button class="btn-primary" @click="mostrarModal = true">+ Nueva Incidencia</button>
           <ModalNuevaIncidencia :show="mostrarModal" @close="mostrarModal = false" />
-          <button class="btn-outline">📅 Reservar Zona Común</button>
-          <button class="btn-outline">📄 Ver Documentos</button>
+          <button class="btn-outline" @click="$router.push('/app/comunes')">📅 Reservar Zona Común</button>
+          <button class="btn-outline" @click="$router.push('/app/documentos')">📄 Ver Documentos</button>
+        </div>
+
+        <!-- MIS RESERVAS -->
+        <div class="white-box">
+          <div class="box-header">
+            <h3>📅 Mis Reservas</h3>
+            <router-link to="/app/comunes" class="view-all">Reservar</router-link>
+          </div>
+          <div v-if="cargandoReservas" class="info-msg">Cargando...</div>
+          <div v-else-if="misReservas.length === 0" class="empty-mini">
+            <p>No tienes reservas activas</p>
+            <router-link to="/app/comunes" class="link-action">Reservar zona común</router-link>
+          </div>
+          <div v-else>
+            <div v-for="r in misReservas.slice(0, 3)" :key="r.id_reserva" class="reserva-item">
+              <div class="reserva-left">
+                <span class="reserva-dot"></span>
+                <div>
+                  <strong>{{ r.nombre_zona }}</strong>
+                  <small>{{ formatFechaReserva(r.fecha) }}</small>
+                </div>
+              </div>
+              <span class="reserva-horario">{{ r.horario }}</span>
+            </div>
+          </div>
         </div>
 
         <div class="white-box announcements">
@@ -424,4 +500,42 @@ onMounted(() => {
   .main-layout-grid { grid-template-columns: 1fr; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* PAYMENTS */
+.payments-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.pay-card { padding: 16px; border-radius: 14px; text-align: center; }
+.pay-card p { margin: 0 0 4px 0; font-size: 0.8rem; color: #6b7280; }
+.pay-card strong { font-size: 1.4rem; font-weight: 800; }
+.green-soft { background: #e8f5e9; color: #22c55e; }
+.green-soft strong { color: #22c55e; }
+.yellow-soft { background: #fff3e0; color: #f59e0b; }
+.yellow-soft strong { color: #f59e0b; }
+.red-soft { background: #ffebee; color: #ef4444; }
+.red-soft strong { color: #ef4444; }
+
+/* RESERVAS */
+.reserva-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f3f4f6; }
+.reserva-item:last-child { border-bottom: none; }
+.reserva-left { display: flex; align-items: center; gap: 10px; }
+.reserva-dot { width: 8px; height: 8px; background: #ff8c00; border-radius: 50%; }
+.reserva-left strong { display: block; font-size: 0.85rem; color: #1a1a2e; }
+.reserva-left small { font-size: 0.72rem; color: #9ca3af; }
+.reserva-horario { font-size: 0.75rem; color: #6b7280; background: #f3f4f6; padding: 4px 10px; border-radius: 8px; font-weight: 600; }
+.empty-mini { text-align: center; padding: 12px 0; }
+.empty-mini p { color: #9ca3af; font-size: 0.82rem; margin: 0 0 6px 0; }
+.link-action { color: #ff8c00; font-weight: 600; font-size: 0.82rem; text-decoration: none; }
+.link-action:hover { text-decoration: underline; }
+
+/* VIEW ALL LINK */
+.view-all { color: #ff8c00; font-weight: 600; font-size: 0.85rem; text-decoration: none; }
+.view-all:hover { text-decoration: underline; }
+
+/* ICON BG */
+.icon-bg { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+
+/* ANNOUNCEMENTS */
+.announcement-item { padding: 12px 0; }
+.tag-outline { padding: 4px 12px; border-radius: 8px; font-size: 0.72rem; font-weight: 700; }
+.tag-outline.red { background: #ffebee; color: #ef4444; }
+.announcements h4 { margin: 8px 0 0 0; font-size: 0.9rem; color: #1a1a2e; }
 </style>

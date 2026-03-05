@@ -8,7 +8,7 @@ defineProps<{
     <div 
       class="toggle-option" 
       :class="{ active: activeMode === 'login' }"
-      @click="$router.push('/')"
+      @click="$router.push('/login')"
     >
       Iniciar sesión
     </div>
