@@ -47,10 +47,8 @@ const handleLogin = async () => {
           headers: { Authorization: `Bearer ${token}` }
         });
         const piso = pisoRes.data;
-        if (piso && piso.id_piso) {
-          userStore.setComunidad(String(piso.id_piso), piso.nombre);
-        } else if (piso && piso.nombre) {
-          userStore.setComunidad(String(piso.Id_piso || userId), piso.nombre || piso.Nombre);
+        if (piso && piso.nombre) {
+          userStore.setComunidad(String(userId), piso.nombre);
         }
       } catch (pisoErr) {
         console.warn('⚠️ No se pudo cargar el piso:', pisoErr);
@@ -58,9 +56,14 @@ const handleLogin = async () => {
     }
 
     // ── Redirección ──
-    if (role === 'admin' || !hasPisos) {
+    if (role === 'admin') {
+      // Admin va directo al dashboard (gestiona pisos desde Configurar Fincas)
+      router.push('/app/dashboard');
+    } else if (!hasPisos) {
+      // Vecino nuevo sin piso asignado
       router.push('/Select_piso');
     } else {
+      // Vecino con piso asignado
       router.push('/app/dashboard');
     }
 
