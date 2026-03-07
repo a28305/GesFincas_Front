@@ -60,15 +60,15 @@ async function fetchPagos(): Promise<void> {
 async function fetchVecinos(): Promise<void> {
   const token = localStorage.getItem('token');
   const idPiso = userStore.fincaActivaId;
-  if (!token || !idPiso) return;
+  if (!token || !idPiso || idPiso === 'null') return;
   try {
     const res = await axios.get(`https://localhost:7152/api/Pisos/${idPiso}/vecinos`, {
       headers: { Authorization: `Bearer ${token}` }
     });
-    vecinosPiso.value = res.data;
+    // Solo mostrar vecinos (no admins) en el select
+    vecinosPiso.value = res.data.filter((v: any) => (v.role ?? v.Role) !== 'admin');
   } catch { vecinosPiso.value = []; }
 }
-
 async function crearPago(): Promise<void> {
   if (!nuevoPago.value.concepto || !nuevoPago.value.cantidad || !nuevoPago.value.id_user) {
     ui.warn('Campos obligatorios', 'Rellena concepto, cantidad y vecino');
