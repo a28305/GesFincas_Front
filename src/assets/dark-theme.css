@@ -1,0 +1,335 @@
+/* ===== VARIABLES - MODO CLARO (defecto) ===== */
+:root {
+  --bg-app: #f4f7f6;
+  --bg-sidebar: #FEEBC6;
+  --bg-card: #ffffff;
+  --bg-input: #FAFAFA;
+  --text-primary: #1a1a2e;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  --text-nav: #b0b0c0;
+  --border-color: rgba(255,255,255,0.1);
+  --border-input: #E5E7EB;
+  --accent: #ff8c00;
+  --accent-light: #FFF7ED;
+}
+
+/* ===== VARIABLES - MODO OSCURO ===== */
+.dark-theme {
+  --bg-app: #0f0f1a;
+  --bg-card: #1e1e32;
+  --bg-input: #252540;
+  --text-primary: #e4e4ed;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  --text-nav: #8888a0;
+  --border-input: #3a3a55;
+  --accent-light: #2a2240;
+}
+
+/* Sidebar usa variable — naranja en claro, oscuro en dark */
+.sidebar { background-color: var(--bg-sidebar) !important; }
+.dark-theme .sidebar { background-color: #1a1d27 !important; }
+.logo-container { background: transparent !important; }
+
+/* ===== FONDOS PRINCIPALES ===== */
+.dark-theme .main-content,
+.dark-theme .dashboard-container,
+.dark-theme .anuncios-page,
+.dark-theme .comunes-page,
+.dark-theme .pagos-page,
+.dark-theme .docs-page,
+.dark-theme .chat-page,
+.dark-theme .admin-page {
+  background-color: var(--bg-app) !important;
+}
+
+/* ===== CARDS / CAJAS BLANCAS ===== */
+.dark-theme .white-box,
+.dark-theme .stat-card,
+.dark-theme .chart-box,
+.dark-theme .form-box,
+.dark-theme .admin-content,
+.dark-theme .tabla-box,
+.dark-theme .stat-box,
+.dark-theme .confirm-card,
+.dark-theme .detalle-card,
+.dark-theme .modal-reserva,
+.dark-theme .chat-wrapper,
+.dark-theme .perfil-card {
+  background-color: var(--bg-card) !important;
+}
+
+/* Cards de componentes */
+.dark-theme .anuncio-card,
+.dark-theme .zona-card,
+.dark-theme .doc-card,
+.dark-theme .finca-card {
+  background-color: var(--bg-card) !important;
+}
+.dark-theme .zona-body,
+.dark-theme .finca-body {
+  background-color: var(--bg-card) !important;
+}
+
+/* ===== TEXTOS ===== */
+.dark-theme h1, .dark-theme h2, .dark-theme h3, .dark-theme h4,
+.dark-theme .page-info h2,
+.dark-theme .stat-card strong,
+.dark-theme .stat-num,
+.dark-theme .card-title,
+.dark-theme .zona-body h4,
+.dark-theme .finca-body h4,
+.dark-theme .doc-info h4,
+.dark-theme .form-box h3,
+.dark-theme .tabla-box h3,
+.dark-theme .detalle-body h2,
+.dark-theme .perfil-card h3,
+.dark-theme .confirm-card h3,
+.dark-theme .chat-header-info h3,
+.dark-theme .box-header h3 {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme p,
+.dark-theme .page-info p,
+.dark-theme .card-content,
+.dark-theme .zona-desc,
+.dark-theme .zona-meta,
+.dark-theme .finca-dir,
+.dark-theme .td-email,
+.dark-theme .detalle-desc,
+.dark-theme .confirm-card p,
+.dark-theme .empty-state p,
+.dark-theme .empty-state h3,
+.dark-theme .info-msg,
+.dark-theme .empty-msg {
+  color: var(--text-secondary) !important;
+}
+
+.dark-theme .stat-card p,
+.dark-theme .pay-card p,
+.dark-theme .chat-header-info p {
+  color: var(--text-muted) !important;
+}
+
+/* ===== INPUTS ===== */
+.dark-theme .form-input,
+.dark-theme .form-textarea,
+.dark-theme .search-input,
+.dark-theme .custom-input,
+.dark-theme .estado-select,
+.dark-theme .chat-input,
+.dark-theme select {
+  background-color: var(--bg-input) !important;
+  border-color: var(--border-input) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ===== TABLAS ===== */
+.dark-theme .admin-table th,
+.dark-theme .pagos-table th {
+  background-color: var(--bg-input) !important;
+  color: var(--text-secondary) !important;
+  border-color: var(--border-input) !important;
+}
+.dark-theme .admin-table td,
+.dark-theme .pagos-table td {
+  border-color: var(--border-input) !important;
+  color: var(--text-primary) !important;
+}
+.dark-theme .admin-table td strong,
+.dark-theme .pagos-table td strong {
+  color: var(--text-primary) !important;
+}
+.dark-theme .admin-table tr:hover,
+.dark-theme .pagos-table tr:hover {
+  background-color: rgba(255,255,255,0.03) !important;
+}
+
+/* ===== BOTONES ===== */
+.dark-theme .btn-outline,
+.dark-theme .filtro-btn {
+  background-color: var(--bg-input) !important;
+  border-color: var(--border-input) !important;
+  color: var(--text-secondary) !important;
+}
+.dark-theme .filtro-btn.active {
+  background-color: var(--accent) !important;
+  color: white !important;
+  border-color: var(--accent) !important;
+}
+.dark-theme .btn-cerrar-modal {
+  background-color: var(--bg-input) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* ===== HEADER ===== */
+.dark-theme .main-header .welcome-section h1 { color: var(--text-primary) !important; }
+.dark-theme .main-header .welcome-section p { color: var(--text-secondary) !important; }
+.dark-theme .profile-pill { background-color: var(--bg-card) !important; }
+.dark-theme .u-name { color: var(--text-primary) !important; }
+.dark-theme .vivienda-tag { color: var(--text-muted) !important; }
+
+/* ===== STATS ===== */
+.dark-theme .stat-pill {
+  background-color: var(--bg-card) !important;
+  color: var(--text-secondary) !important;
+}
+.dark-theme .stat-box {
+  background-color: var(--bg-card) !important;
+}
+.dark-theme .stat-box.highlight {
+  background-color: var(--accent-light) !important;
+  border-color: var(--border-input) !important;
+}
+
+/* ===== PAYMENT CARDS ===== */
+.dark-theme .green-soft { background: rgba(34,197,94,0.15) !important; }
+.dark-theme .yellow-soft { background: rgba(245,158,11,0.15) !important; }
+.dark-theme .red-soft { background: rgba(239,68,68,0.15) !important; }
+
+/* ===== BADGES / TAGS ===== */
+.dark-theme .serv-tag,
+.dark-theme .doc-cat {
+  background-color: var(--bg-input) !important;
+  color: var(--text-secondary) !important;
+}
+.dark-theme .comunidad-tag {
+  background-color: rgba(34,197,94,0.15) !important;
+}
+.dark-theme .comunidad-tag.sin-asignar {
+  background-color: rgba(245,158,11,0.15) !important;
+}
+
+/* ===== CHAT ===== */
+.dark-theme .chat-header {
+  background-color: var(--bg-input) !important;
+  border-color: var(--border-input) !important;
+}
+.dark-theme .chat-messages {
+  background-color: var(--bg-app) !important;
+}
+.dark-theme .bubble-otro {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2) !important;
+}
+.dark-theme .msg-contenido {
+  color: inherit !important;
+}
+.dark-theme .chat-input-bar {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-input) !important;
+}
+.dark-theme .fecha-separator span {
+  background-color: var(--bg-input) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* ===== MODALS ===== */
+.dark-theme .detalle-overlay,
+.dark-theme .modal-overlay,
+.dark-theme .perfil-overlay {
+  background: rgba(0,0,0,0.7) !important;
+}
+.dark-theme .detalle-body,
+.dark-theme .reserva-body {
+  background-color: var(--bg-card) !important;
+}
+.dark-theme .perfil-row {
+  border-color: var(--border-input) !important;
+}
+.dark-theme .perfil-label { color: var(--text-muted) !important; }
+.dark-theme .perfil-value { color: var(--text-primary) !important; }
+.dark-theme .detalle-close,
+.dark-theme .perfil-close {
+  background-color: var(--bg-input) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* ===== RESERVA MODAL ===== */
+.dark-theme .reserva-header {
+  background-color: var(--accent-light) !important;
+}
+.dark-theme .datos-usuario {
+  background-color: var(--accent-light) !important;
+  border-color: var(--border-input) !important;
+}
+.dark-theme .datos-grid p { color: var(--text-primary) !important; }
+.dark-theme .r-tag {
+  background-color: var(--bg-input) !important;
+  border-color: var(--border-input) !important;
+  color: var(--text-secondary) !important;
+}
+.dark-theme .horario-btn {
+  background-color: var(--bg-input) !important;
+  border-color: var(--border-input) !important;
+  color: var(--text-secondary) !important;
+}
+.dark-theme .horario-btn.active {
+  background-color: var(--accent-light) !important;
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+}
+
+/* ===== DROPZONE ===== */
+.dark-theme .drop-zone {
+  background-color: var(--bg-input) !important;
+  border-color: var(--border-input) !important;
+}
+.dark-theme .drop-content p,
+.dark-theme .drop-content small {
+  color: var(--text-muted) !important;
+}
+
+/* ===== FOOTER ===== */
+.dark-theme .main-footer {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-input) !important;
+  color: var(--text-muted) !important;
+}
+
+/* ===== LANDING ===== */
+.dark-theme .landing-page {
+  background-color: var(--bg-app) !important;
+}
+
+/* ===== SCROLLBAR ===== */
+.dark-theme ::-webkit-scrollbar-thumb { background: #3a3a55 !important; }
+.dark-theme ::-webkit-scrollbar-track { background: var(--bg-app) !important; }
+
+/* ===== PISO CARD (Select_piso) ===== */
+.dark-theme .piso-card {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ===== PRIORITY SELECTOR ===== */
+.dark-theme .priority-selector {
+  background-color: var(--bg-input) !important;
+}
+.dark-theme .prio-btn {
+  color: var(--text-secondary) !important;
+}
+.dark-theme .prio-btn.active {
+  background-color: var(--bg-card) !important;
+  color: var(--accent) !important;
+}
+/* Nav texto en modo claro (sidebar naranja) */
+.nav-item { color: #7a5200 !important; }
+.dark-theme .nav-item { color: #94a3b8 !important; }
+.name-mini { color: #3a2a00 !important; }
+.dark-theme .name-mini { color: #f1f5f9 !important; }
+.vivienda-mini { color: #a07000 !important; }
+.dark-theme .vivienda-mini { color: #64748b !important; }
+.divider { color: #a07000 !important; }
+.dark-theme .divider { color: #64748b !important; }
+.toggle-label { color: #7a5200 !important; }
+.dark-theme .toggle-label { color: #94a3b8 !important; }
+.sidebar-footer { border-top-color: rgba(180,120,0,0.2) !important; }
+.dark-theme .sidebar-footer { border-top-color: #2d3148 !important; }
+.admin-section { border-top-color: rgba(180,120,0,0.2) !important; }
+.dark-theme .admin-section { border-top-color: #2d3148 !important; }
+.user-profile-mini { background: rgba(255,255,255,0.4) !important; }
+.dark-theme .user-profile-mini { background: rgba(255,255,255,0.08) !important; }
