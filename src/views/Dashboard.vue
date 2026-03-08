@@ -162,6 +162,7 @@ function renderCharts(): void {
           data: [pagado || 1, pendiente || 1],
           backgroundColor: ['#22c55e', '#f59e0b'],
           borderWidth: 0,
+        // @ts-ignore
           cutout: '70%'
         }]
       },
@@ -181,7 +182,7 @@ function renderCharts(): void {
       const d = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1);
       meses.push(d.toLocaleDateString('es-ES', { month: 'short' }));
       const count = incidencias.value.filter(inc => {
-        const f = inc.fechaCreacion ?? inc.FechaCreacion;
+        const f = (inc as any).fechaCreacion ?? (inc as any).FechaCreacion;
         if (!f) return false;
         const fd = new Date(f);
         return fd.getMonth() === d.getMonth() && fd.getFullYear() === d.getFullYear();

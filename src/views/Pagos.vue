@@ -65,10 +65,10 @@ async function fetchVecinos(): Promise<void> {
     const res = await axios.get(`https://localhost:7152/api/Pisos/${idPiso}/vecinos`, {
       headers: { Authorization: `Bearer ${token}` }
     });
-    // Solo mostrar vecinos (no admins) en el select
     vecinosPiso.value = res.data.filter((v: any) => (v.role ?? v.Role) !== 'admin');
   } catch { vecinosPiso.value = []; }
 }
+
 async function crearPago(): Promise<void> {
   if (!nuevoPago.value.concepto || !nuevoPago.value.cantidad || !nuevoPago.value.id_user) {
     ui.warn('Campos obligatorios', 'Rellena concepto, cantidad y vecino');
@@ -118,9 +118,166 @@ async function eliminarPago(): Promise<void> {
   } catch { ui.error('Error', 'No se pudo eliminar'); }
 }
 
+// ══════════════════════════════════════════════
+//  GENERAR PDF RECIBO — canvas nativo, sin librerías
+// ══════════════════════════════════════════════
+function descargarRecibo(pago: any): void {
+  const canvas = document.createElement('canvas');
+  canvas.width = 794;   // A4 a 96 dpi
+  canvas.height = 1123;
+  const ctx = canvas.getContext('2d')!;
+
+  const concepto    = pago.concepto ?? pago.Concepto ?? '-';
+  const cantidad    = Number(pago.cantidad ?? pago.Cantidad ?? 0).toFixed(2);
+  const estado      = pago.estado ?? pago.Estado ?? '-';
+  const vecino      = pago.nombre_usuario ?? userStore.userName ?? '-';
+  const comunidad   = userStore.viviendaNombre ?? '-';
+  const idPago      = pago.id_pago ?? pago.Id_pago ?? '-';
+  const fechaEmision = formatFecha(pago.fechaEmision ?? pago.FechaEmision ?? new Date().toISOString());
+  const fechaVenc   = formatFecha(pago.fechaVencimiento ?? pago.FechaVencimiento ?? null);
+  const fechaPago   = formatFecha(pago.fechaPago ?? pago.FechaPago ?? null);
+  const esPagado    = estado === 'Pagado';
+
+  // ── Fondo ──
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // ── Franja superior naranja ──
+  ctx.fillStyle = '#ff8c00';
+  ctx.fillRect(0, 0, canvas.width, 120);
+
+  // ── Logo / título en franja ──
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 32px Arial';
+  ctx.fillText('GesFincas', 48, 58);
+  ctx.font = '16px Arial';
+  ctx.fillText('Recibo de Pago Comunitario', 48, 88);
+
+  // ── Número de recibo (derecha) ──
+  ctx.textAlign = 'right';
+  ctx.font = 'bold 14px Arial';
+  ctx.fillText(`Recibo #${idPago}`, canvas.width - 48, 58);
+  ctx.font = '13px Arial';
+  ctx.fillText(`Emitido: ${fechaEmision}`, canvas.width - 48, 80);
+  ctx.textAlign = 'left';
+
+  // ── Badge estado ──
+  const badgeX = canvas.width - 160;
+  const badgeY = 140;
+  ctx.fillStyle = esPagado ? '#dcfce7' : '#fff3e0';
+  roundRect(ctx, badgeX, badgeY, 120, 36, 18);
+  ctx.fill();
+  ctx.fillStyle = esPagado ? '#16a34a' : '#f59e0b';
+  ctx.font = 'bold 14px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText(esPagado ? '✓  PAGADO' : '⏳  PENDIENTE', badgeX + 60, badgeY + 24);
+  ctx.textAlign = 'left';
+
+  // ── Separador ──
+  ctx.strokeStyle = '#f3f4f6';
+  ctx.lineWidth = 1.5;
+  line(ctx, 48, 200, canvas.width - 48, 200);
+
+  // ── Sección datos ──
+  let y = 240;
+  const labelColor = '#6b7280';
+  const valueColor = '#1a1a2e';
+
+  function drawRow(label: string, value: string, bold = false) {
+    ctx.fillStyle = labelColor;
+    ctx.font = '13px Arial';
+    ctx.fillText(label, 48, y);
+    ctx.fillStyle = valueColor;
+    ctx.font = bold ? 'bold 15px Arial' : '14px Arial';
+    ctx.fillText(value, 260, y);
+    y += 44;
+  }
+
+  drawRow('Concepto:', concepto, true);
+  drawRow('Vecino / Titular:', vecino);
+  drawRow('Comunidad:', comunidad);
+  drawRow('Fecha de emisión:', fechaEmision);
+  drawRow('Fecha de vencimiento:', fechaVenc || 'Sin vencimiento');
+  if (esPagado && fechaPago) drawRow('Fecha de pago:', fechaPago);
+
+  // ── Separador ──
+  line(ctx, 48, y + 10, canvas.width - 48, y + 10);
+  y += 40;
+
+  // ── Caja importe total ──
+  ctx.fillStyle = '#fff8f0';
+  roundRect(ctx, 48, y, canvas.width - 96, 90, 16);
+  ctx.fill();
+
+  ctx.fillStyle = '#6b7280';
+  ctx.font = '14px Arial';
+  ctx.fillText('IMPORTE TOTAL', 80, y + 34);
+
+  ctx.fillStyle = '#ff8c00';
+  ctx.font = 'bold 42px Arial';
+  ctx.textAlign = 'right';
+  ctx.fillText(`${cantidad} €`, canvas.width - 80, y + 72);
+  ctx.textAlign = 'left';
+
+  y += 120;
+
+  // ── Nota si está pagado ──
+  if (esPagado) {
+    ctx.fillStyle = '#dcfce7';
+    roundRect(ctx, 48, y, canvas.width - 96, 60, 12);
+    ctx.fill();
+    ctx.fillStyle = '#16a34a';
+    ctx.font = 'bold 14px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('✓  Este recibo ha sido pagado correctamente', canvas.width / 2, y + 36);
+    ctx.textAlign = 'left';
+    y += 80;
+  }
+
+  // ── Línea separadora inferior ──
+  line(ctx, 48, canvas.height - 80, canvas.width - 48, canvas.height - 80);
+
+  // ── Footer ──
+  ctx.fillStyle = '#9ca3af';
+  ctx.font = '12px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('GesFincas — Sistema de Gestión de Comunidades', canvas.width / 2, canvas.height - 50);
+  ctx.fillText(`Documento generado el ${new Date().toLocaleDateString('es-ES')}`, canvas.width / 2, canvas.height - 30);
+
+  // ── Descargar ──
+  const link = document.createElement('a');
+  link.download = `recibo_${idPago}_${concepto.replace(/\s+/g, '_')}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+
+  ui.success('Recibo descargado', `Recibo #${idPago} generado correctamente`);
+}
+
+// Helpers canvas
+function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function line(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number) {
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+}
+
 function formatFecha(fecha: string | null): string {
   if (!fecha) return '-';
-  return new Date(fecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'numeric', year: 'numeric' });
+  return new Date(fecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 function getEstado(pago: any): string { return pago.estado ?? pago.Estado ?? 'Pendiente'; }
@@ -161,23 +318,34 @@ onMounted(() => fetchPagos());
         <div class="stat-top"><span>Próximo Pago</span></div>
         <strong class="stat-num">{{ Number(proximoPago.cantidad ?? 0).toFixed(2) }}€</strong>
         <small>Vence: {{ formatFecha(proximoPago.fechaVencimiento) }}</small>
-        <button class="btn-pagar-inline" @click="confirmandoPagar = proximoPago.id_pago">Pagar Ahora</button>
+        <button class="btn-pagar-inline" @click="confirmandoPagar = proximoPago.id_pago ?? proximoPago.Id_pago">Pagar ahora</button>
       </div>
     </div>
 
-    <!-- FORM CREAR (admin) -->
+    <!-- FORMULARIO NUEVO PAGO -->
     <Transition name="slide">
-      <div v-if="mostrarCrear && esAdmin" class="form-box">
-        <h3>Crear nuevo recibo</h3>
+      <div v-if="mostrarCrear" class="form-box">
+        <h3>Nuevo Recibo</h3>
         <div class="form-grid">
-          <div class="input-group"><label>Concepto <span class="req">*</span></label><input v-model="nuevoPago.concepto" type="text" placeholder="Ej: Cuota Marzo 2026" class="form-input"></div>
-          <div class="input-group"><label>Cantidad (€) <span class="req">*</span></label><input v-model.number="nuevoPago.cantidad" type="number" step="0.01" class="form-input"></div>
-          <div class="input-group"><label>Fecha vencimiento</label><input v-model="nuevoPago.fechaVencimiento" type="date" class="form-input"></div>
+          <div class="input-group">
+            <label>Concepto <span class="req">*</span></label>
+            <input v-model="nuevoPago.concepto" type="text" class="form-input" placeholder="Ej: Cuota mensual enero" />
+          </div>
+          <div class="input-group">
+            <label>Cantidad (€) <span class="req">*</span></label>
+            <input v-model="nuevoPago.cantidad" type="number" class="form-input" placeholder="0.00" step="0.01" min="0" />
+          </div>
+          <div class="input-group">
+            <label>Fecha de vencimiento</label>
+            <input v-model="nuevoPago.fechaVencimiento" type="date" class="form-input" />
+          </div>
           <div class="input-group">
             <label>Vecino <span class="req">*</span></label>
-            <select v-model.number="nuevoPago.id_user" class="form-input">
-              <option value="0" disabled>Selecciona vecino...</option>
-              <option v-for="v in vecinosPiso" :key="v.id_user ?? v.Id_user" :value="v.id_user ?? v.Id_user">{{ v.name ?? v.Name ?? v.email }}</option>
+            <select v-model="nuevoPago.id_user" class="form-input">
+              <option :value="0" disabled>Seleccionar vecino</option>
+              <option v-for="v in vecinosPiso" :key="v.id_user ?? v.Id_user" :value="v.id_user ?? v.Id_user">
+                {{ v.name ?? v.Name ?? v.nombre ?? 'Vecino' }}
+              </option>
             </select>
           </div>
         </div>
@@ -212,7 +380,9 @@ onMounted(() => fetchPagos());
             <td><strong>{{ Number(p.cantidad ?? p.Cantidad ?? 0).toFixed(2) }}€</strong></td>
             <td>
               <span>{{ formatFecha(p.fechaVencimiento ?? p.FechaVencimiento) }}</span>
-              <small v-if="getEstado(p) === 'Pagado' && (p.fechaPago ?? p.FechaPago)" class="fecha-pago">Pagado: {{ formatFecha(p.fechaPago ?? p.FechaPago) }}</small>
+              <small v-if="getEstado(p) === 'Pagado' && (p.fechaPago ?? p.FechaPago)" class="fecha-pago">
+                Pagado: {{ formatFecha(p.fechaPago ?? p.FechaPago) }}
+              </small>
             </td>
             <td>
               <span :class="['estado-badge', getEstado(p) === 'Pagado' ? 'badge-pagado' : 'badge-pendiente']">
@@ -220,9 +390,17 @@ onMounted(() => fetchPagos());
               </span>
             </td>
             <td class="acciones-cell">
-              <button v-if="getEstado(p) === 'Pendiente'" class="btn-pagar" @click="confirmandoPagar = p.id_pago ?? p.Id_pago">Pagar</button>
-              <span v-else class="link-recibo">Ver Recibo</span>
-              <button v-if="esAdmin" class="btn-eliminar-pago" @click="confirmandoEliminar = p.id_pago ?? p.Id_pago">🗑️</button>
+              <!-- Pagar si está pendiente -->
+              <button v-if="getEstado(p) === 'Pendiente'" class="btn-pagar"
+                @click="confirmandoPagar = p.id_pago ?? p.Id_pago">Pagar</button>
+
+              <!-- Descargar recibo siempre disponible -->
+              <button class="btn-recibo" @click="descargarRecibo(p)" title="Descargar recibo">
+                ⬇️ Recibo
+              </button>
+
+              <button v-if="esAdmin" class="btn-eliminar-pago"
+                @click="confirmandoEliminar = p.id_pago ?? p.Id_pago">🗑️</button>
             </td>
           </tr>
         </tbody>
@@ -281,11 +459,9 @@ onMounted(() => fetchPagos());
 .stat-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .stat-top span:first-child { font-size: 0.85rem; color: #6b7280; font-weight: 600; }
 .stat-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-.stat-icon.green { background: #e8f5e9; }
-.stat-icon.orange { background: #fff3e0; }
+.stat-icon.green { background: #e8f5e9; } .stat-icon.orange { background: #fff3e0; }
 .stat-num { font-size: 1.8rem; font-weight: 800; color: #1a1a2e; }
-.green-text { color: #22c55e; }
-.orange-text { color: #f59e0b; }
+.green-text { color: #22c55e; } .orange-text { color: #f59e0b; }
 .stat-box small { font-size: 0.78rem; color: #9ca3af; }
 .btn-pagar-inline { align-self: flex-end; background: #ff8c00; color: white; border: none; padding: 10px 24px; border-radius: 30px; font-weight: 700; font-size: 0.85rem; cursor: pointer; margin-top: 4px; }
 
@@ -303,7 +479,7 @@ onMounted(() => fetchPagos());
 .tabla-box h3 { margin: 0 0 20px 0; font-size: 1.15rem; }
 .pagos-table { width: 100%; border-collapse: collapse; }
 .pagos-table th { text-align: left; padding: 14px 16px; font-size: 0.82rem; color: #6b7280; font-weight: 700; border-bottom: 2px solid #f3f4f6; }
-.pagos-table td { padding: 18px 16px; border-bottom: 1px solid #f3f4f6; }
+.pagos-table td { padding: 18px 16px; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
 .pagos-table tr:hover { background: #fafafa; }
 .pagos-table td strong { color: #1a1a2e; font-size: 0.92rem; }
 .vecino-name { font-size: 0.85rem; color: #6b7280; }
@@ -311,12 +487,15 @@ onMounted(() => fetchPagos());
 .estado-badge { padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
 .badge-pagado { background: #e8f5e9; color: #22c55e; }
 .badge-pendiente { background: #fff3e0; color: #f59e0b; }
-.acciones-cell { display: flex; align-items: center; gap: 8px; }
+
+.acciones-cell { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .btn-pagar { background: #ff8c00; color: white; border: none; padding: 8px 20px; border-radius: 10px; font-weight: 700; font-size: 0.82rem; cursor: pointer; }
 .btn-pagar:hover { background: #e67e00; }
-.link-recibo { color: #6b7280; font-size: 0.82rem; cursor: pointer; }
+.btn-recibo { background: #f0f9ff; color: #3b82f6; border: 1px solid #bfdbfe; padding: 7px 14px; border-radius: 10px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: background 0.15s; white-space: nowrap; }
+.btn-recibo:hover { background: #dbeafe; }
 .btn-eliminar-pago { background: #fef2f2; border: 1px solid #fee2e2; padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
 .btn-eliminar-pago:hover { background: #fee2e2; }
+
 .empty-state { text-align: center; padding: 60px 20px; }
 .empty-icon { font-size: 3rem; display: block; margin-bottom: 16px; }
 .info-msg { text-align: center; color: #95a5a6; padding: 40px; }

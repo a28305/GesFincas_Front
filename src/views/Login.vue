@@ -31,12 +31,13 @@ const handleLogin = async () => {
     const userId = data.userId;
     const role = data.role || 'vecino';
     const hasPisos = data.hasPisos ?? false;
-    const nombre = data.name || (email.value?.split('@')[0] ?? 'Usuario');// ← lee data.name
+    const nombre = data.name || (email.value?.split('@')[0] ?? 'Usuario');
 
     localStorage.setItem('token', token);
     localStorage.setItem('userId', String(userId));
     localStorage.setItem('role', role);
     localStorage.setItem('hasPisos', String(hasPisos));
+    localStorage.setItem('userEmail', data.email || email.value || '');
 
     userStore.setUserData(nombre, role);
 
@@ -48,7 +49,8 @@ const handleLogin = async () => {
         });
         const piso = pisoRes.data;
         if (piso && piso.nombre) {
-          userStore.setComunidad(String(userId), piso.nombre);
+          // FIX: usar piso.id_piso en vez de userId
+          userStore.setComunidad(String(piso.id_piso), piso.nombre);
         }
       } catch (pisoErr) {
         console.warn('⚠️ No se pudo cargar el piso:', pisoErr);
@@ -57,13 +59,10 @@ const handleLogin = async () => {
 
     // ── Redirección ──
     if (role === 'admin') {
-      // Admin va directo al dashboard (gestiona pisos desde Configurar Fincas)
       router.push('/app/dashboard');
     } else if (!hasPisos) {
-      // Vecino nuevo sin piso asignado
       router.push('/Select_piso');
     } else {
-      // Vecino con piso asignado
       router.push('/app/dashboard');
     }
 
