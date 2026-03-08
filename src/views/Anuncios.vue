@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
+import '@/assets/icomoon/icomoon.css';
 import Header from '@/components/Header.vue';
 import Footer from '@/components/Footer.vue';
 import AnuncioCard from '@/components/AnuncioCard.vue';
@@ -126,7 +127,7 @@ onMounted(async () => {
     <!-- Cabecera -->
     <div class="page-top">
       <div class="page-info">
-        <h2>📢 Tablón de Anuncios</h2>
+        <h2><i class="icon-bullhorn title-icon"></i> Tablón de Anuncios</h2>
         <p>Comunicados y avisos de la comunidad</p>
       </div>
       <button v-if="esAdmin" class="btn-nueva" @click="mostrarFormulario = !mostrarFormulario">
@@ -203,7 +204,7 @@ onMounted(async () => {
 
     <!-- Empty -->
     <div v-else class="empty-state">
-      <span class="empty-icon">📢</span>
+      <i class="icon-bullhorn empty-icon-i"></i>
       <h3>No hay anuncios</h3>
       <p>{{ esAdmin ? 'Publica el primer anuncio de la comunidad.' : 'Aún no hay anuncios publicados.' }}</p>
     </div>
@@ -221,7 +222,7 @@ onMounted(async () => {
             </div>
             <h2>{{ anuncioSeleccionado.titulo ?? 'Sin título' }}</h2>
             <p class="detalle-fecha">
-              📅 {{ anuncioSeleccionado.fechaPublicacion
+              <i class="icon-cog" style="color:#ff8c00;margin-right:4px"></i> {{ anuncioSeleccionado.fechaPublicacion
                 ? new Date(anuncioSeleccionado.fechaPublicacion).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
                 : 'Sin fecha' }}
             </p>
@@ -237,7 +238,7 @@ onMounted(async () => {
       <Transition name="modal">
         <div v-if="confirmandoEliminar" class="detalle-overlay" @click.self="confirmandoEliminar = null">
           <div class="confirm-card">
-            <span class="confirm-icon">🗑️</span>
+            <i class="icon-bin confirm-icon-i"></i>
             <h3>¿Eliminar anuncio?</h3>
             <p>Esta acción no se puede deshacer.</p>
             <div class="confirm-actions">
@@ -400,4 +401,19 @@ onMounted(async () => {
   .page-top { flex-direction: column; align-items: flex-start; gap: 16px; }
   .cards-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Icomoon shared icon styles ── */
+.title-icon { font-size: 1.3rem; color: #ff8c00; margin-right: 8px; vertical-align: middle; }
+.empty-icon-i { font-size: 3rem; color: #ff8c00; display: block; margin-bottom: 16px; }
+.confirm-icon-i { font-size: 2.5rem; color: #ff8c00; margin-bottom: 12px; display: block; }
+.stat-icon-i { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+.stat-icon-i.green { background: #e8f5e9; color: #22c55e; }
+.stat-icon-i.orange { background: #fff3e0; color: #f59e0b; }
+.drop-icon-i { font-size: 2rem; color: #ff8c00; display: block; margin-bottom: 8px; }
+.doc-icon-i { font-size: 1.4rem; color: #ff8c00; }
+.file-icon-i { font-size: 2rem; color: #ff8c00; }
+.file-icon-i.red { color: #ef4444; }
+.file-icon-i.blue { color: #3b82f6; }
+.file-icon-i.green { color: #22c55e; }
+.reserva-icon-i { width: 40px; height: 40px; background: #ff8c00; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; }
 </style>

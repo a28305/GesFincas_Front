@@ -23,13 +23,13 @@ const handleRegister = async () => {
 
   try {
     await axios.post('https://localhost:7152/api/auth/register', {
-      Name: username.value, // Asegúrate de que tu DTO en C# use 'Name'
+      Name: username.value,
       Email: email.value,
       Password: password.value
     });
 
     ui.success("¡Registro exitoso!", "Ahora puedes iniciar sesión");
-    router.push('/'); 
+    router.push('/login');
   } catch (error: any) {
     ui.error("Error", String(error.response?.data || "Error al registrarse"));
   }
@@ -37,72 +37,69 @@ const handleRegister = async () => {
 </script>
 
 <template>
-  <div class="auth-wrapper">
-    <AppBrand :width="100" />
-
-    <div class="form-container">
-      <input 
-        v-model="username" 
-        type="text" 
-        placeholder="Usuario" 
-        class="custom-input" 
-        autofocus
-      >
-      <input 
-        v-model="email" 
-        type="email" 
-        placeholder="Email" 
-        class="custom-input"
-      >
-      <input 
-        v-model="password" 
-        type="password" 
-        placeholder="Contraseña" 
-        class="custom-input"
-      >
-      <input 
-        v-model="confirmPassword" 
-        type="password" 
-        placeholder="Repetir Contraseña" 
-        class="custom-input"
-      >
-
-      <AuthToggle activeMode="register" />
-
-      <PrimaryButton text="Registrarse" @click="handleRegister" />
+  <div class="register-container">
+    <div class="register-card">
+      <div class="brand-wrap">
+        <AppBrand :width="140" />
+      </div>
+      <div class="form-section">
+        <input v-model="username" type="text" placeholder="Usuario" class="custom-input" autofocus />
+        <input v-model="email" type="email" placeholder="Email" class="custom-input" />
+        <input v-model="password" type="password" placeholder="Contraseña" class="custom-input" />
+        <input v-model="confirmPassword" type="password" placeholder="Repetir Contraseña" class="custom-input" @keyup.enter="handleRegister" />
+        <AuthToggle activeMode="register" />
+        <PrimaryButton text="Registrarse" @click="handleRegister" />
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-/* Estilos estructurales de la página */
-.auth-wrapper {
+.register-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
   padding: 20px;
+  background-color: #FFF7ED; /* Mismo fondo que Login — cámbialo aquí */
   box-sizing: border-box;
 }
 
-.form-container {
+.register-card {
   display: flex;
-  flex-direction: column; 
+  flex-direction: column;
+  align-items: center;
   width: 100%;
-  max-width: 320px;
-  gap: 12px; /* Espacio entre inputs */
+  max-width: 340px;
+  gap: 24px;
 }
 
-/* Estilo del input (no componente todavía) */
+.brand-wrap {
+  pointer-events: none;
+  user-select: none;
+}
+
+.form-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .custom-input {
   width: 100%;
   padding: 16px 20px;
   border-radius: 30px;
   border: none;
-  background-color: #e8dab2; /* Color crema suave */
+  background-color: #e8dab2;
   font-size: 16px;
   box-sizing: border-box;
   outline: none;
+  color: #1a1a2e;
+  font-family: inherit;
 }
+
+.custom-input::placeholder { color: #8a7a5a; }
+.custom-input:focus { background-color: #ddd0a0; box-shadow: 0 0 0 3px rgba(255,140,0,0.15); }
 </style>

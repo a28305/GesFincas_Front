@@ -381,51 +381,51 @@ onMounted(() => inicializarDashboard());
       <!-- Cabecera admin -->
       <div class="admin-header">
         <div>
-          <h2 class="admin-title">📊 Panel de Administración</h2>
+          <h2 class="admin-title"><i class="icon-stats-dots title-icon"></i> Panel de Administración</h2>
           <p class="admin-sub">Resumen en tiempo real de {{ userStore.viviendaNombre }}</p>
         </div>
-        <span class="admin-badge">🔑 Admin</span>
+        <span class="admin-badge"><i class="icon-lock"></i> Admin</span>
       </div>
 
       <!-- KPIs admin -->
       <div class="admin-kpis">
         <div class="kpi-card kpi-blue">
-          <div class="kpi-icon">👥</div>
+          <div class="kpi-icon"><i class="icon-users"></i></div>
           <div class="kpi-info">
             <span class="kpi-val">{{ adminVecinos.filter(v => (v.role ?? v.Role) !== 'admin').length }}</span>
             <span class="kpi-label">Vecinos</span>
           </div>
         </div>
         <div class="kpi-card kpi-green">
-          <div class="kpi-icon">💰</div>
+          <div class="kpi-icon"><i class="icon-credit-card"></i></div>
           <div class="kpi-info">
             <span class="kpi-val">{{ adminTotalRecaudado.toFixed(0) }}€</span>
             <span class="kpi-label">Recaudado</span>
           </div>
         </div>
         <div class="kpi-card kpi-orange">
-          <div class="kpi-icon">⏳</div>
+          <div class="kpi-icon"><i class="icon-cog"></i></div>
           <div class="kpi-info">
             <span class="kpi-val">{{ adminTotalPendiente.toFixed(0) }}€</span>
             <span class="kpi-label">Pendiente cobro</span>
           </div>
         </div>
         <div class="kpi-card kpi-red">
-          <div class="kpi-icon">⚠️</div>
+          <div class="kpi-icon"><i class="icon-warning"></i></div>
           <div class="kpi-info">
             <span class="kpi-val">{{ adminVecinosMorosos }}</span>
             <span class="kpi-label">Vecinos con deuda</span>
           </div>
         </div>
         <div class="kpi-card kpi-purple">
-          <div class="kpi-icon">✅</div>
+          <div class="kpi-icon"><i class="icon-checkmark"></i></div>
           <div class="kpi-info">
             <span class="kpi-val">{{ adminTasaResolucion }}%</span>
             <span class="kpi-label">Tasa resolución</span>
           </div>
         </div>
         <div class="kpi-card kpi-teal">
-          <div class="kpi-icon">📋</div>
+          <div class="kpi-icon"><i class="icon-file-text"></i></div>
           <div class="kpi-info">
             <span class="kpi-val">{{ incidencias.length }}</span>
             <span class="kpi-label">Total incidencias</span>
@@ -436,19 +436,19 @@ onMounted(() => inicializarDashboard());
       <!-- Charts admin -->
       <div class="admin-charts">
         <div class="admin-chart-box admin-chart-wide">
-          <h4>💳 Pagos por Mes — Recaudado vs Pendiente</h4>
+          <h4><i class="icon-credit-card"></i> Pagos por Mes — Recaudado vs Pendiente</h4>
           <div class="chart-wrapper"><canvas ref="chartAdminPagos"></canvas></div>
         </div>
         <div class="admin-chart-box">
-          <h4>👥 Estado de Pagos Vecinos</h4>
+          <h4><i class="icon-users"></i> Estado de Pagos Vecinos</h4>
           <div class="chart-wrapper"><canvas ref="chartAdminMorosos"></canvas></div>
         </div>
         <div class="admin-chart-box">
-          <h4>⭐ Top Proveedores</h4>
+          <h4><i class="icon-stats-dots"></i> Top Proveedores</h4>
           <div class="chart-wrapper"><canvas ref="chartAdminProveedores"></canvas></div>
         </div>
         <div class="admin-chart-box">
-          <h4>📈 Incidencias Últimos 6 Meses</h4>
+          <h4><i class="icon-warning"></i> Incidencias Últimos 6 Meses</h4>
           <div class="chart-wrapper"><canvas ref="chartAdminIncMes"></canvas></div>
         </div>
       </div>
@@ -456,7 +456,7 @@ onMounted(() => inicializarDashboard());
       <!-- Tabla morosos -->
       <div class="white-box morosos-box" v-if="adminVecinosMorosos > 0">
         <div class="box-header">
-          <h3>🔴 Vecinos con Pagos Pendientes</h3>
+          <h3><i class="icon-warning" style="color:#ef4444"></i> Vecinos con Pagos Pendientes</h3>
           <router-link to="/app/pagos" class="view-all">Ver pagos</router-link>
         </div>
         <table class="morosos-table">
@@ -483,10 +483,10 @@ onMounted(() => inicializarDashboard());
 
     <!-- Stats incidencias -->
     <div class="stats-grid">
-      <div class="stat-card"><div><p>Total Incidencias</p><strong>{{ incidencias.length }}</strong></div><div class="icon-bg orange-light">📄</div></div>
-      <div class="stat-card"><div><p>Nuevas</p><strong class="text-red">{{ totalNuevas }}</strong></div><div class="icon-bg red-light">❗</div></div>
-      <div class="stat-card"><div><p>En Proceso</p><strong class="text-yellow">{{ totalProceso }}</strong></div><div class="icon-bg yellow-light">🕒</div></div>
-      <div class="stat-card"><div><p>Resueltas</p><strong class="text-green">{{ totalResueltas }}</strong></div><div class="icon-bg green-light">✅</div></div>
+      <div class="stat-card"><div><p>Total Incidencias</p><strong>{{ incidencias.length }}</strong></div><div class="icon-bg orange-light"><i class="icon-file-text"></i></div></div>
+      <div class="stat-card"><div><p>Nuevas</p><strong class="text-red">{{ totalNuevas }}</strong></div><div class="icon-bg red-light"><i class="icon-warning"></i></div></div>
+      <div class="stat-card"><div><p>En Proceso</p><strong class="text-yellow">{{ totalProceso }}</strong></div><div class="icon-bg yellow-light"><i class="icon-bell"></i></div></div>
+      <div class="stat-card"><div><p>Resueltas</p><strong class="text-green">{{ totalResueltas }}</strong></div><div class="icon-bg green-light"><i class="icon-checkmark"></i></div></div>
     </div>
 
     <!-- Charts vecino -->
@@ -537,13 +537,13 @@ onMounted(() => inicializarDashboard());
           <h3>Acciones Rápidas</h3>
           <button class="btn-primary" @click="mostrarModal = true">+ Nueva Incidencia</button>
           <ModalNuevaIncidencia :show="mostrarModal" @close="mostrarModal = false" />
-          <button class="btn-outline" @click="$router.push('/app/comunes')">📅 Reservar Zona Común</button>
-          <button class="btn-outline" @click="$router.push('/app/documentos')">📄 Ver Documentos</button>
+          <button class="btn-outline" @click="$router.push('/app/comunes')"><i class="icon-home3"></i> Reservar Zona Común</button>
+          <button class="btn-outline" @click="$router.push('/app/documentos')"><i class="icon-file-text"></i> Ver Documentos</button>
         </div>
 
         <div class="white-box">
           <div class="box-header">
-            <h3>📅 Mis Reservas</h3>
+            <h3><i class="icon-home3"></i> Mis Reservas</h3>
             <router-link to="/app/comunes" class="view-all">Reservar</router-link>
           </div>
           <div v-if="misReservas.length === 0" class="empty-mini">
@@ -560,7 +560,7 @@ onMounted(() => inicializarDashboard());
 
         <div class="white-box">
           <div class="box-header">
-            <h3>📢 Anuncios</h3>
+            <h3><i class="icon-bullhorn"></i> Anuncios</h3>
             <router-link to="/app/anuncios" class="view-all">Ver todos</router-link>
           </div>
           <p class="empty-mini-text">Consulta el tablón de anuncios</p>
@@ -604,6 +604,8 @@ onMounted(() => inicializarDashboard());
 </template>
 
 <style scoped>
+@import '@/assets/icomoon/icomoon.css';
+.title-icon { margin-right: 8px; font-size: 1.2rem; vertical-align: middle; color: #ff8c00; }
 .dashboard-container { background-color: #f4f7f6; min-height: 100vh; padding: 0 30px 30px; display: flex; flex-direction: column; }
 
 /* ══ ADMIN HEADER ══ */
@@ -611,6 +613,7 @@ onMounted(() => inicializarDashboard());
 .admin-title { margin: 0 0 4px 0; font-size: 1.5rem; color: #1a1a2e; }
 .admin-sub { margin: 0; color: #6b7280; font-size: 0.88rem; }
 .admin-badge { background: #fff3e0; color: #ff8c00; padding: 6px 16px; border-radius: 20px; font-size: 0.82rem; font-weight: 700; }
+.admin-badge i { color: #ff8c00; margin-right: 4px; }
 
 /* ══ KPIs ══ */
 .admin-kpis { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-bottom: 24px; }
@@ -622,6 +625,12 @@ onMounted(() => inicializarDashboard());
 .kpi-purple { border-left-color: #8b5cf6; }
 .kpi-teal   { border-left-color: #14b8a6; }
 .kpi-icon { font-size: 1.6rem; flex-shrink: 0; }
+.kpi-blue   .kpi-icon i { color: #3b82f6; }
+.kpi-green  .kpi-icon i { color: #22c55e; }
+.kpi-orange .kpi-icon i { color: #ff8c00; }
+.kpi-red    .kpi-icon i { color: #ef4444; }
+.kpi-purple .kpi-icon i { color: #8b5cf6; }
+.kpi-teal   .kpi-icon i { color: #14b8a6; }
 .kpi-info { display: flex; flex-direction: column; }
 .kpi-val { font-size: 1.4rem; font-weight: 800; color: #1a1a2e; line-height: 1; }
 .kpi-label { font-size: 0.72rem; color: #6b7280; margin-top: 3px; font-weight: 500; }
@@ -631,6 +640,7 @@ onMounted(() => inicializarDashboard());
 .admin-chart-box { background: white; border-radius: 18px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
 .admin-chart-wide { grid-column: span 1; }
 .admin-chart-box h4 { margin: 0 0 14px 0; font-size: 0.88rem; color: #1a1a2e; font-weight: 700; }
+.admin-chart-box h4 i { color: #ff8c00; margin-right: 6px; vertical-align: middle; }
 
 /* ══ TABLA MOROSOS ══ */
 .morosos-box { margin-bottom: 24px; }
@@ -655,7 +665,10 @@ onMounted(() => inicializarDashboard());
 .stat-card p { margin: 0 0 4px 0; font-size: 0.82rem; color: #6b7280; }
 .stat-card strong { font-size: 1.6rem; font-weight: 800; }
 .icon-bg { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
-.orange-light { background: #fff3e0; } .red-light { background: #ffebee; } .yellow-light { background: #fffde7; } .green-light { background: #e8f5e9; }
+.orange-light { background: #fff3e0; } .orange-light i { color: #ff8c00; }
+.red-light { background: #ffebee; }    .red-light i { color: #ef4444; }
+.yellow-light { background: #fffde7; } .yellow-light i { color: #f59e0b; }
+.green-light { background: #e8f5e9; }  .green-light i { color: #22c55e; }
 .text-red { color: #e53935; } .text-yellow { color: #fbc02d; } .text-green { color: #4caf50; }
 
 /* ══ CHARTS COMUNES ══ */
@@ -669,12 +682,14 @@ onMounted(() => inicializarDashboard());
 .white-box { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 25px; }
 .box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 .box-header h3 { margin: 0; font-size: 1.05rem; color: #1a1a2e; }
+.box-header h3 i { color: #ff8c00; margin-right: 6px; vertical-align: middle; }
 .view-all { color: #ff8c00; font-weight: 600; font-size: 0.85rem; text-decoration: none; }
 .view-all:hover { text-decoration: underline; }
 
 .btn-primary { background: #ff8c00; color: white; width: 100%; padding: 16px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; margin-bottom: 15px; transition: 0.3s; }
 .btn-primary:hover { background: #e67e00; transform: translateY(-2px); }
 .btn-outline { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #eee; background: #f8f9fa; color: #5d4037; font-weight: bold; margin-bottom: 12px; cursor: pointer; transition: 0.2s; }
+.btn-outline i { color: #ff8c00; margin-right: 6px; vertical-align: middle; }
 .btn-outline:hover { border-color: #ff8c00; color: #ff8c00; }
 
 .empty-msg, .info-msg { text-align: center; color: #95a5a6; padding: 20px; font-size: 0.9rem; }

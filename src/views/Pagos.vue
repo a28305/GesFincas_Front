@@ -5,6 +5,7 @@ import Footer from '@/components/Footer.vue';
 import { useUserStore } from '@/store/userstore';
 import { useUiStore } from '@/store/Uistore';
 import axios from 'axios';
+import '@/assets/icomoon/icomoon.css';
 
 const userStore = useUserStore();
 const ui = useUiStore();
@@ -296,7 +297,7 @@ onMounted(() => fetchPagos());
 
     <div class="page-top">
       <div class="page-info">
-        <h2>💳 Gestión de Pagos</h2>
+        <h2><i class="icon-credit-card title-icon"></i> Gestión de Pagos</h2>
         <p>Consulta y gestiona tus pagos comunitarios</p>
       </div>
       <button v-if="esAdmin" class="btn-nueva" @click="abrirCrear">
@@ -307,11 +308,11 @@ onMounted(() => fetchPagos());
     <!-- STATS -->
     <div class="stats-row">
       <div class="stat-box">
-        <div class="stat-top"><span>Total Pagado</span><span class="stat-icon green">✔</span></div>
+        <div class="stat-top"><span>Total Pagado</span><i class="icon-checkmark stat-icon-i green"></i></div>
         <strong class="stat-num green-text">{{ totalPagado.toFixed(2) }}€</strong>
       </div>
       <div class="stat-box">
-        <div class="stat-top"><span>Total Pendiente</span><span class="stat-icon orange">⏳</span></div>
+        <div class="stat-top"><span>Total Pendiente</span><i class="icon-cog stat-icon-i orange"></i></div>
         <strong class="stat-num orange-text">{{ totalPendiente.toFixed(2) }}€</strong>
       </div>
       <div class="stat-box highlight" v-if="proximoPago">
@@ -358,7 +359,7 @@ onMounted(() => fetchPagos());
       <h3>Historial de Pagos</h3>
       <p v-if="loading" class="info-msg">Cargando pagos...</p>
       <div v-else-if="pagos.length === 0" class="empty-state">
-        <span class="empty-icon">💳</span>
+        <i class="icon-credit-card empty-icon-i"></i>
         <h3>No hay pagos registrados</h3>
         <p>{{ esAdmin ? 'Genera el primer recibo.' : 'No tienes recibos.' }}</p>
       </div>
@@ -386,7 +387,7 @@ onMounted(() => fetchPagos());
             </td>
             <td>
               <span :class="['estado-badge', getEstado(p) === 'Pagado' ? 'badge-pagado' : 'badge-pendiente']">
-                {{ getEstado(p) === 'Pagado' ? '✔' : '⏳' }} {{ getEstado(p).toUpperCase() }}
+                {{ getEstado(p) === 'Pagado' ? '✔' : '' }} {{ getEstado(p).toUpperCase() }}
               </span>
             </td>
             <td class="acciones-cell">
@@ -396,11 +397,11 @@ onMounted(() => fetchPagos());
 
               <!-- Descargar recibo siempre disponible -->
               <button class="btn-recibo" @click="descargarRecibo(p)" title="Descargar recibo">
-                ⬇️ Recibo
+                 Recibo
               </button>
 
               <button v-if="esAdmin" class="btn-eliminar-pago"
-                @click="confirmandoEliminar = p.id_pago ?? p.Id_pago">🗑️</button>
+                @click="confirmandoEliminar = p.id_pago ?? p.Id_pago"><i class="icon-bin"></i></button>
             </td>
           </tr>
         </tbody>
@@ -412,7 +413,7 @@ onMounted(() => fetchPagos());
       <Transition name="modal">
         <div v-if="confirmandoPagar" class="modal-overlay" @click.self="confirmandoPagar = null">
           <div class="confirm-card">
-            <span class="confirm-icon">💳</span>
+            <i class="icon-credit-card confirm-icon-i"></i>
             <h3>¿Confirmar pago?</h3>
             <p>Se marcará como pagado con fecha de hoy.</p>
             <div class="confirm-actions">
@@ -429,7 +430,7 @@ onMounted(() => fetchPagos());
       <Transition name="modal">
         <div v-if="confirmandoEliminar" class="modal-overlay" @click.self="confirmandoEliminar = null">
           <div class="confirm-card">
-            <span class="confirm-icon">🗑️</span>
+            <i class="icon-bin confirm-icon-i"></i>
             <h3>¿Eliminar este recibo?</h3>
             <p>Esta acción no se puede deshacer.</p>
             <div class="confirm-actions">
@@ -519,4 +520,19 @@ onMounted(() => fetchPagos());
 
 @media (max-width: 1024px) { .stats-row { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 640px) { .pagos-page { padding: 0 16px 20px; } .stats-row { grid-template-columns: 1fr; } }
+
+/* ── Icomoon shared icon styles ── */
+.title-icon { font-size: 1.3rem; color: #ff8c00; margin-right: 8px; vertical-align: middle; }
+.empty-icon-i { font-size: 3rem; color: #ff8c00; display: block; margin-bottom: 16px; }
+.confirm-icon-i { font-size: 2.5rem; color: #ff8c00; margin-bottom: 12px; display: block; }
+.stat-icon-i { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+.stat-icon-i.green { background: #e8f5e9; color: #22c55e; }
+.stat-icon-i.orange { background: #fff3e0; color: #f59e0b; }
+.drop-icon-i { font-size: 2rem; color: #ff8c00; display: block; margin-bottom: 8px; }
+.doc-icon-i { font-size: 1.4rem; color: #ff8c00; }
+.file-icon-i { font-size: 2rem; color: #ff8c00; }
+.file-icon-i.red { color: #ef4444; }
+.file-icon-i.blue { color: #3b82f6; }
+.file-icon-i.green { color: #22c55e; }
+.reserva-icon-i { width: 40px; height: 40px; background: #ff8c00; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; }
 </style>

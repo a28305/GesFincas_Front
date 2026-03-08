@@ -4,6 +4,7 @@ import { useUserStore } from '@/store/userstore';
 import { useUiStore } from '@/store/Uistore';
 import { useRouter } from 'vue-router';
 import AppBrand from '../components/AppBrand.vue';
+import LangSelector from '../components/LangSelector.vue';
 
 const userStore = useUserStore();
 const ui = useUiStore();
@@ -44,51 +45,51 @@ function toggleDark() {
 
       <nav class="nav-links">
         <router-link to="/app/dashboard" class="nav-item" @click="isMenuOpen = false">
-          <span class="icon">📊</span> Dashboard
+          <i class="icon icon-stats-dots"></i> Dashboard
         </router-link>
         <router-link to="/app/incidencias" class="nav-item" @click="isMenuOpen = false">
-          <span class="icon">⚠️</span> Incidencias
+          <i class="icon icon-warning"></i> Incidencias
         </router-link>
         <router-link to="/app/anuncios" class="nav-item" @click="isMenuOpen = false">
-          <span class="icon">📢</span> Tablón
+          <i class="icon icon-bullhorn"></i> Tablón
         </router-link>
         <router-link to="/app/comunes" class="nav-item" @click="isMenuOpen = false">
-          <span class="icon">🌳</span> Zonas Comunes
+          <i class="icon icon-home3"></i> Zonas Comunes
         </router-link>
         <router-link to="/app/pagos" class="nav-item" @click="isMenuOpen = false">
-          <span class="icon">💳</span> Pagos
+          <i class="icon icon-credit-card"></i> Pagos
         </router-link>
         <router-link to="/app/documentos" class="nav-item" @click="isMenuOpen = false">
-          <span class="icon">📄</span> Documentos
+          <i class="icon icon-file-text"></i> Documentos
         </router-link>
         <router-link to="/app/chat" class="nav-item" @click="isMenuOpen = false">
-          <span class="icon">💬</span> Chat
+          <i class="icon icon-bubbles"></i> Chat
         </router-link>
         <router-link to="/app/proveedores" class="nav-item" @click="isMenuOpen = false">
-          <span class="icon">🏪</span> Proveedores
+          <i class="icon icon-wrench"></i> Proveedores
         </router-link>
 
         <div v-if="userRole === 'admin'" class="admin-section">
           <div class="divider">ADMINISTRACIÓN</div>
           <router-link to="/app/admin/vecinos" class="nav-item" @click="isMenuOpen = false">
-            <span class="icon">👥</span> Gestión Vecinos
+            <i class="icon icon-users"></i> Gestión Vecinos
           </router-link>
           <router-link to="/app/admin/fincas" class="nav-item" @click="isMenuOpen = false">
-            <span class="icon">🏢</span> Configurar Fincas
+            <i class="icon icon-settings"></i> Configurar Fincas
           </router-link>
         </div>
 
-        <!-- TOGGLE DARK MODE -->
+        <!-- ── Toggle dark mode ── -->
         <div class="dark-toggle-wrap">
-          <button class="dark-toggle" @click="toggleDark">
+          <button class="dark-toggle" @click="toggleDark" :title="ui.darkMode ? 'Modo claro' : 'Modo oscuro'">
             <span class="toggle-track" :class="{ active: ui.darkMode }">
-              <span class="toggle-thumb">{{ ui.darkMode ? '🌙' : '☀️' }}</span>
+              <span class="toggle-thumb"><i :class="ui.darkMode ? 'icon-unlocked' : 'icon-lock'"></i></span>
             </span>
             <span class="toggle-label">{{ ui.darkMode ? 'Modo oscuro' : 'Modo claro' }}</span>
           </button>
         </div>
 
-        <!-- PERFIL -->
+        <!-- ── Perfil clickable abajo ── -->
         <div class="sidebar-footer">
           <div class="user-profile-mini" @click="irAPerfil" title="Ver mi perfil">
             <span class="avatar-mini">{{ getInitials(nombreUsuario) }}</span>
@@ -111,41 +112,44 @@ function toggleDark() {
 </template>
 
 <style scoped>
+@import '@/assets/icomoon/icomoon.css';
 .app-wrapper {
   display: flex; height: 100vh; width: 100vw;
-  overflow: hidden; background-color: var(--bg-app, #f4f7f6);
+  overflow: hidden; background-color: var(--bg-app);
   position: fixed; top: 0; left: 0;
+  transition: background-color 0.3s;
 }
 
 .sidebar {
   width: 260px; min-width: 260px; max-width: 260px; height: 100vh;
-  background-color: #1a1a2e;
+  background-color: var(--bg-sidebar);
   display: flex; flex-direction: column; padding: 20px;
-  transition: left 0.3s;
+  transition: background-color 0.3s, left 0.3s;
   z-index: 100; flex-shrink: 0;
   overflow-x: hidden; overflow-y: auto;
   scrollbar-width: none; -ms-overflow-style: none;
 }
 .sidebar::-webkit-scrollbar { width: 0; }
 
-.logo-container { text-align: center; margin-bottom: 30px; padding: 10px; user-select: none; pointer-events: none; background: transparent; }
+.logo-container { text-align: center; margin-bottom: 30px; padding: 10px; user-select: none; pointer-events: none; }
 
 .nav-links { display: flex; flex-direction: column; gap: 6px; flex: 1; }
 
 .nav-item {
   display: flex; align-items: center; padding: 12px 15px;
-  color: #b0b0c0; text-decoration: none; border-radius: 10px;
+  color: var(--text-nav); text-decoration: none; border-radius: 10px;
   transition: 0.2s; border: none; background: transparent;
   width: 100%; text-align: left; font-size: 0.92rem; cursor: pointer;
 }
-.nav-item:hover { background: rgba(255,255,255,0.08); color: #e0e0e8; }
+.nav-item:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); }
 .router-link-active { background-color: #ff8c00 !important; color: white !important; font-weight: 600; box-shadow: 0 4px 12px rgba(255,140,0,0.25); }
-.icon { margin-right: 12px; font-size: 1.1rem; }
+.icon { margin-right: 12px; font-size: 1.1rem; display: inline-block; color: #a0522d; }
+.nav-item.active .icon, .nav-item.router-link-active .icon { color: #ff8c00; }
 
-.admin-section { margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); }
-.divider { font-size: 0.65rem; font-weight: bold; color: #636e72; margin-bottom: 10px; padding-left: 15px; letter-spacing: 1px; text-transform: uppercase; }
+.admin-section { margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color); }
+.divider { font-size: 0.65rem; font-weight: bold; color: var(--text-muted); margin-bottom: 10px; padding-left: 15px; letter-spacing: 1px; text-transform: uppercase; }
 
-/* TOGGLE DARK MODE */
+/* ── TOGGLE ── */
 .dark-toggle-wrap { padding: 8px 4px; }
 .dark-toggle {
   display: flex; align-items: center; gap: 10px;
@@ -153,8 +157,9 @@ function toggleDark() {
   width: 100%; padding: 10px 12px; border-radius: 10px; transition: background 0.2s;
 }
 .dark-toggle:hover { background: rgba(255,255,255,0.08); }
+
 .toggle-track {
-  width: 44px; height: 24px; border-radius: 12px; background: #4a4a6a;
+  width: 44px; height: 24px; border-radius: 12px; background: #d1d5db;
   display: flex; align-items: center; padding: 2px;
   transition: background 0.3s; flex-shrink: 0;
 }
@@ -164,27 +169,28 @@ function toggleDark() {
   display: flex; align-items: center; justify-content: center;
   font-size: 0.7rem; box-shadow: 0 1px 4px rgba(0,0,0,0.2); transition: all 0.3s;
 }
-.toggle-label { font-size: 0.85rem; color: #b0b0c0; font-weight: 500; }
+.toggle-label { font-size: 0.88rem; color: var(--text-nav); font-weight: 500; }
 
-/* PERFIL */
-.sidebar-footer { margin-top: auto; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1); }
+/* ── PERFIL ── */
+.sidebar-footer { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border-color); }
 .user-profile-mini {
   display: flex; align-items: center; gap: 12px; padding: 12px;
-  background: rgba(255,255,255,0.08); border-radius: 12px; cursor: pointer;
+  background: rgba(255,255,255,0.12); border-radius: 12px; cursor: pointer;
   transition: background 0.2s, transform 0.15s;
 }
-.user-profile-mini:hover { background: rgba(255,255,255,0.15); transform: translateY(-1px); }
+.user-profile-mini:hover { background: rgba(255,255,255,0.22); transform: translateY(-1px); }
+.user-profile-mini:active { transform: translateY(0); }
 .avatar-mini { width: 38px; height: 38px; background: #ff8c00; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; color: white; flex-shrink: 0; }
 .user-info-mini { display: flex; flex-direction: column; overflow: hidden; flex: 1; }
-.name-mini { font-size: 0.88rem; font-weight: 600; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; color: #e0e0e8; }
-.vivienda-mini { font-size: 0.72rem; color: #8888a0; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+.name-mini { font-size: 0.88rem; font-weight: 600; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; color: var(--text-primary); }
+.vivienda-mini { font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
 .perfil-arrow { font-size: 1.2rem; color: #ff8c00; font-weight: 700; flex-shrink: 0; opacity: 0; transition: opacity 0.2s; }
 .user-profile-mini:hover .perfil-arrow { opacity: 1; }
 
-/* MAIN CONTENT */
+/* ── MAIN ── */
 .main-content {
   flex: 1; display: flex; flex-direction: column; height: 100vh; overflow-y: auto;
-  background-color: var(--bg-app, #f4f7f6); transition: background-color 0.3s;
+  background-color: var(--bg-app); transition: background-color 0.3s;
 }
 
 .mobile-toggle { display: none; }

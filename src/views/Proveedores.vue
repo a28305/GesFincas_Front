@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue';
 import Header from '@/components/Header.vue';
 import axios from 'axios';
+import '@/assets/icomoon/icomoon.css';
 
 interface Proveedor {
   id_proveedor: number;
@@ -79,11 +80,11 @@ function getColorEspecialidad(esp: string): string {
 
 function getIconoEspecialidad(esp: string): string {
   const mapa: Record<string, string> = {
-    Ascensores: '🔧', Limpieza: '🧹', Electricidad: '⚡',
-    Fontanería: '🔩', Cerrajería: '🔑', Pintura: '🎨',
-    Jardinería: '🌿', Climatización: '❄️',
+    Ascensores: 'icon-cog', Limpieza: 'icon-checkmark', Electricidad: 'icon-warning',
+    Fontanería: 'icon-wrench', Cerrajería: 'icon-lock', Pintura: 'icon-stats-dots',
+    Jardinería: 'icon-home3', Climatización: 'icon-settings',
   };
-  return mapa[esp] ?? '🏪';
+  return mapa[esp] ?? 'icon-wrench';
 }
 
 function getEtiqueta(cal: number | null): string {
@@ -120,7 +121,7 @@ onMounted(cargarProveedores);
       </div>
 
       <div v-else-if="error" class="estado">
-        <span style="font-size:2rem">⚠️</span>
+        <i class="icon-warning" style="font-size:2rem;color:#ff8c00"></i>
         <p>{{ error }}</p>
         <button class="btn-reintentar" @click="cargarProveedores">Reintentar</button>
       </div>
@@ -142,7 +143,7 @@ onMounted(cargarProveedores);
             <div class="card-header">
               <div class="card-icon"
                 :style="{ background: getColorEspecialidad(p.especialidad)+'18', color: getColorEspecialidad(p.especialidad) }">
-                {{ getIconoEspecialidad(p.especialidad) }}
+                <i :class="getIconoEspecialidad(p.especialidad)"></i>
               </div>
               <div>
                 <div class="card-nombre">{{ p.nombre }}</div>
@@ -164,34 +165,34 @@ onMounted(cargarProveedores);
 
             <!-- Input votar -->
             <div class="votar-box">
-              <span class="votar-label">{{ p.mi_valoracion ? '✏️ Tu voto:' : '⭐ Valora:' }}</span>
+              <span class="votar-label">{{ p.mi_valoracion ? 'Tu voto:' : 'Valora:' }}</span>
               <div class="stars-input" @mouseleave="delete hoverStars[p.id_proveedor]">
                 <button v-for="i in 5" :key="i"
                   class="star-btn" :class="starClass(p, i)"
                   :disabled="votando === p.id_proveedor"
                   @mouseenter="hoverStars[p.id_proveedor] = i"
                   @click="votar(p.id_proveedor, i)">★</button>
-                <span v-if="votando === p.id_proveedor" class="spin">⏳</span>
+                <span v-if="votando === p.id_proveedor" class="spin"><i class="icon-cog"></i></span>
               </div>
             </div>
 
             <!-- Teléfono -->
             <div class="tel-row">
-              <span>📞</span>
+              <i class="icon-phone tel-icon"></i>
               <span class="tel-num">{{ p.telefono }}</span>
             </div>
 
-            <button class="btn-llamar" @click="llamar(p.telefono)">📞 &nbsp;Llamar Ahora</button>
+            <button class="btn-llamar" @click="llamar(p.telefono)">Llamar Ahora</button>
           </div>
         </div>
 
         <div v-if="proveedoresFiltrados.length === 0" class="estado">
-          <span style="font-size:2rem">🔍</span>
+          <i class="icon-search" style="font-size:2rem;color:#ff8c00"></i>
           <p>No hay proveedores en esta categoría</p>
         </div>
 
         <div class="info-banner">
-          <span>ℹ️</span>
+          <i class="icon-info banner-icon"></i>
           <div>
             <div class="info-title">Proveedores Verificados</div>
             <div class="info-text">Verificados por la administración. Las valoraciones son el promedio de votos de los vecinos.</div>
@@ -203,7 +204,7 @@ onMounted(cargarProveedores);
 </template>
 
 <style scoped>
-.page { background: #f4f7f6; min-height: 100vh; display: flex; flex-direction: column; }
+.page { background: var(--bg-app, #f4f7f6); min-height: 100vh; display: flex; flex-direction: column; }
 .content { padding: 0 28px 32px; flex: 1; }
 
 .estado { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:300px; gap:12px; color:#9ca3af; text-align:center; }
@@ -215,7 +216,7 @@ onMounted(cargarProveedores);
 
 .filtros-wrap { margin-bottom:24px; overflow-x:auto; scrollbar-width:none; }
 .filtros { display:flex; gap:10px; flex-wrap:wrap; }
-.filtro-btn { padding:8px 18px; border-radius:30px; border:1.5px solid #e5e7eb; background:white; color:#374151; font-size:.85rem; font-weight:500; cursor:pointer; transition:all .18s; white-space:nowrap; }
+.filtro-btn { padding:8px 18px; border-radius:30px; border:1.5px solid var(--border-color,#e5e7eb); background:var(--bg-card,white); color:var(--text-primary,#374151); font-size:.85rem; font-weight:500; cursor:pointer; transition:all .18s; white-space:nowrap; }
 .filtro-btn:hover { border-color:#ff8c00; color:#ff8c00; }
 .filtro-btn.active { background:#ff8c00; border-color:#ff8c00; color:white; font-weight:700; }
 
@@ -223,12 +224,12 @@ onMounted(cargarProveedores);
 @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.grid{grid-template-columns:1fr}.content{padding:0 14px 24px}}
 
-.card { background:white; border-radius:18px; padding:20px; box-shadow:0 2px 12px rgba(0,0,0,.05); display:flex; flex-direction:column; gap:14px; transition:box-shadow .2s,transform .2s; }
+.card { background:var(--bg-card,white); border-radius:18px; padding:20px; box-shadow:0 2px 12px rgba(0,0,0,.05); display:flex; flex-direction:column; gap:14px; transition:box-shadow .2s,transform .2s; }
 .card:hover { box-shadow:0 6px 24px rgba(0,0,0,.09); transform:translateY(-2px); }
 
 .card-header { display:flex; align-items:center; gap:14px; }
 .card-icon { width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.35rem; flex-shrink:0; }
-.card-nombre { font-size:.97rem; font-weight:700; color:#1a1a2e; }
+.card-nombre { font-size:.97rem; font-weight:700; color:var(--text-primary,#1a1a2e); }
 .card-cat { display:flex; align-items:center; gap:5px; font-size:.78rem; color:#6b7280; margin-top:2px; }
 .dot { width:7px; height:7px; border-radius:50%; display:inline-block; flex-shrink:0; }
 
@@ -239,7 +240,7 @@ onMounted(cargarProveedores);
 .etiqueta { font-size:.78rem; color:#6b7280; font-weight:500; }
 .votos { font-size:.73rem; color:#9ca3af; }
 
-.votar-box { background:#fafafa; border-radius:12px; padding:12px 14px; display:flex; flex-direction:column; gap:8px; border:1px solid #f3f4f6; }
+.votar-box { background:var(--bg-app,#fafafa); border-radius:12px; padding:12px 14px; display:flex; flex-direction:column; gap:8px; border:1px solid var(--border-color,#f3f4f6); }
 .votar-label { font-size:.78rem; color:#6b7280; font-weight:600; }
 .stars-input { display:flex; align-items:center; gap:2px; }
 .star-btn { background:none; border:none; cursor:pointer; font-size:1.5rem; color:#d1d5db; padding:0 2px; transition:color .1s,transform .1s; line-height:1; }
@@ -248,13 +249,18 @@ onMounted(cargarProveedores);
 .star-btn:disabled { cursor:wait; opacity:.6; }
 .spin { font-size:.85rem; margin-left:6px; }
 
-.tel-row { display:flex; align-items:center; gap:8px; background:#fff8f0; border-radius:10px; padding:10px 14px; }
-.tel-num { font-size:.9rem; font-weight:600; color:#374151; }
+.tel-row { display:flex; align-items:center; gap:8px; background:rgba(255,140,0,0.08); border-radius:10px; padding:10px 14px; }
+.tel-num { font-size:.9rem; font-weight:600; color:var(--text-primary,#374151); }
 
 .btn-llamar { width:100%; padding:13px; background:#ff8c00; color:white; border:none; border-radius:30px; font-size:.92rem; font-weight:700; cursor:pointer; transition:background .18s,transform .15s; margin-top:auto; }
 .btn-llamar:hover { background:#e67e00; transform:scale(1.02); }
 
-.info-banner { display:flex; align-items:flex-start; gap:14px; background:white; border-radius:16px; padding:18px 22px; box-shadow:0 2px 10px rgba(0,0,0,.04); }
-.info-title { font-size:.9rem; font-weight:700; color:#1a1a2e; margin-bottom:4px; }
+.info-banner { display:flex; align-items:flex-start; gap:14px; background:var(--bg-card,white); border-radius:16px; padding:18px 22px; box-shadow:0 2px 10px rgba(0,0,0,.04); }
+.info-title { font-size:.9rem; font-weight:700; color:var(--text-primary,#1a1a2e); margin-bottom:4px; }
 .info-text { font-size:.82rem; color:#6b7280; line-height:1.5; }
+.tel-icon { font-size:1rem; color:#ff8c00; }
+.banner-icon { font-size:1.2rem; color:#3b82f6; flex-shrink:0; margin-top:2px; }
+.card-icon i { font-size:1.3rem; }
+.spin i { font-size:.85rem; color:#ff8c00; }
+
 </style>

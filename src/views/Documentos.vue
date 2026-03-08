@@ -5,6 +5,7 @@ import Footer from '@/components/Footer.vue';
 import { useUserStore } from '@/store/userstore';
 import { useUiStore } from '@/store/Uistore';
 import axios from 'axios';
+import '@/assets/icomoon/icomoon.css';
 
 const userStore = useUserStore();
 const ui = useUiStore();
@@ -74,11 +75,11 @@ function formatFileSize(bytes: number): string {
 
 function getFileIcon(name: string): string {
   const ext = name.split('.').pop()?.toLowerCase() ?? '';
-  if (ext === 'pdf') return '📕';
-  if (['doc', 'docx'].includes(ext)) return '📘';
-  if (['xls', 'xlsx'].includes(ext)) return '📗';
-  if (['png', 'jpg', 'jpeg'].includes(ext)) return '🖼️';
-  return '📄';
+  if (ext === 'pdf') return 'icon-file-text red';
+  if (['doc', 'docx'].includes(ext)) return 'icon-file-text blue';
+  if (['xls', 'xlsx'].includes(ext)) return 'icon-file-text green';
+  if (['png', 'jpg', 'jpeg'].includes(ext)) return 'icon-image';
+  return 'icon-file-text';
 }
 
 async function fetchDocumentos(): Promise<void> {
@@ -169,13 +170,13 @@ function formatFecha(fecha: string | null): string {
 
 function getCatIcon(cat: string): string {
   const c = (cat ?? '').toLowerCase();
-  if (c.includes('acta')) return '📋';
-  if (c.includes('presupuesto')) return '💰';
-  if (c.includes('normativa')) return '📜';
-  if (c.includes('contrato')) return '📝';
-  if (c.includes('seguro')) return '🛡️';
-  if (c.includes('certificado')) return '🏅';
-  return '📄';
+  if (c.includes('acta')) return 'icon-file-text';
+  if (c.includes('presupuesto')) return 'icon-credit-card';
+  if (c.includes('normativa')) return 'icon-file-text';
+  if (c.includes('contrato')) return 'icon-file-text';
+  if (c.includes('seguro')) return 'icon-lock';
+  if (c.includes('certificado')) return 'icon-checkmark';
+  return 'icon-file-text';
 }
 
 function getCatCount(cat: string): number {
@@ -192,7 +193,7 @@ onMounted(() => fetchDocumentos());
 
     <div class="page-top">
       <div class="page-info">
-        <h2>📄 Documentos</h2>
+        <h2><i class="icon-file-text title-icon"></i> Documentos</h2>
         <p>Accede a toda la documentación de la comunidad</p>
       </div>
       <button v-if="esAdmin" class="btn-nueva" @click="mostrarCrear = !mostrarCrear">
@@ -201,7 +202,7 @@ onMounted(() => fetchDocumentos());
     </div>
 
     <div class="search-bar">
-      <input v-model="busqueda" type="text" placeholder="🔍 Buscar documentos..." class="search-input">
+      <input v-model="busqueda" type="text" placeholder="Buscar documentos..." class="search-input">
     </div>
 
     <div class="filtros-bar">
@@ -240,12 +241,12 @@ onMounted(() => fetchDocumentos());
               @dragleave="dragOver = false"
               @drop.prevent="onDrop">
               <div v-if="!archivoSeleccionado" class="drop-content">
-                <span class="drop-icon">📁</span>
+                <i class="icon-folder drop-icon-i"></i>
                 <p>Arrastra un archivo aquí o <label class="file-label"><input type="file" @change="onFileSelect" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg" hidden>haz click para seleccionar</label></p>
                 <small>PDF, Word, Excel, imágenes (máx. 50MB)</small>
               </div>
               <div v-else class="file-preview">
-                <span class="file-icon">{{ getFileIcon(archivoSeleccionado.name) }}</span>
+                <i :class="['file-icon-i', getFileIcon(archivoSeleccionado.name)]"></i>
                 <div class="file-details">
                   <strong>{{ archivoSeleccionado.name }}</strong>
                   <small>{{ formatFileSize(archivoSeleccionado.size) }}</small>
@@ -266,7 +267,7 @@ onMounted(() => fetchDocumentos());
     <div v-else-if="documentosFiltrados.length > 0" class="docs-grid">
       <div v-for="doc in documentosFiltrados" :key="doc.id_documentacion" class="doc-card">
         <div class="doc-icon-box">
-          <span class="doc-icon">{{ getCatIcon(doc.tipo ?? '') }}</span>
+          <i :class="getCatIcon(doc.tipo ?? '')" class="doc-icon-i"></i>
         </div>
         <div class="doc-info">
           <h4>{{ doc.nombre_archivo }}</h4>
@@ -274,15 +275,15 @@ onMounted(() => fetchDocumentos());
           <small>{{ formatFecha(doc.fecha_subida) }}</small>
         </div>
         <div class="doc-actions">
-          <button v-if="doc.url_descarga" class="btn-ver" @click="descargarDoc(doc)">🔗 Ver</button>
-          <span v-else class="btn-ver disabled">📄 Sin archivo</span>
-          <button v-if="esAdmin" class="btn-eliminar-doc" @click="confirmandoEliminar = doc.id_documentacion">🗑️</button>
+          <button v-if="doc.url_descarga" class="btn-ver" @click="descargarDoc(doc)"><i class="icon-link"></i> Ver</button>
+          <span v-else class="btn-ver disabled"> Sin archivo</span>
+          <button v-if="esAdmin" class="btn-eliminar-doc" @click="confirmandoEliminar = doc.id_documentacion"><i class="icon-bin"></i></button>
         </div>
       </div>
     </div>
 
     <div v-else class="empty-state">
-      <span class="empty-icon">📂</span>
+      <i class="icon-folder-open empty-icon-i"></i>
       <h3>No hay documentos</h3>
       <p>{{ esAdmin ? 'Sube el primer documento.' : 'El administrador aún no ha subido documentos.' }}</p>
     </div>
@@ -292,7 +293,7 @@ onMounted(() => fetchDocumentos());
       <Transition name="modal">
         <div v-if="confirmandoEliminar" class="modal-overlay" @click.self="confirmandoEliminar = null">
           <div class="confirm-card">
-            <span class="confirm-icon">🗑️</span>
+            <i class="icon-bin confirm-icon-i"></i>
             <h3>¿Eliminar documento?</h3>
             <p>Esta acción no se puede deshacer.</p>
             <div class="confirm-actions">
@@ -390,4 +391,19 @@ onMounted(() => fetchDocumentos());
 
 @media (max-width: 1024px) { .docs-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 640px) { .docs-page { padding: 0 16px 20px; } .docs-grid { grid-template-columns: 1fr; } }
+
+/* ── Icomoon shared icon styles ── */
+.title-icon { font-size: 1.3rem; color: #ff8c00; margin-right: 8px; vertical-align: middle; }
+.empty-icon-i { font-size: 3rem; color: #ff8c00; display: block; margin-bottom: 16px; }
+.confirm-icon-i { font-size: 2.5rem; color: #ff8c00; margin-bottom: 12px; display: block; }
+.stat-icon-i { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+.stat-icon-i.green { background: #e8f5e9; color: #22c55e; }
+.stat-icon-i.orange { background: #fff3e0; color: #f59e0b; }
+.drop-icon-i { font-size: 2rem; color: #ff8c00; display: block; margin-bottom: 8px; }
+.doc-icon-i { font-size: 1.4rem; color: #ff8c00; }
+.file-icon-i { font-size: 2rem; color: #ff8c00; }
+.file-icon-i.red { color: #ef4444; }
+.file-icon-i.blue { color: #3b82f6; }
+.file-icon-i.green { color: #22c55e; }
+.reserva-icon-i { width: 40px; height: 40px; background: #ff8c00; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; }
 </style>

@@ -69,19 +69,20 @@ const router = createRouter({
           path: 'proveedores',
           name: 'proveedores',
           component: () => import('@/views/Proveedores.vue'),
-          meta:{ requiresAuth: true }
-
+          meta: { requiresAuth: true }
         },
-        { 
-          path: 'perfil', 
-          name: 'perfil', 
+        {
+          path: 'perfil',
+          name: 'perfil',
           component: () => import('@/views/Perfil.vue'),
-          meta: { requiresAuth: true } },
+          meta: { requiresAuth: true }
+        },
         {
           path: 'admin/vecinos',
           name: 'admin-vecinos',
           component: () => import('@/views/AdminVecinos.vue'),
-          meta: { requiresAuth: true, requiresAdmin: true }
+          // Presidente también puede ver (solo lectura en la vista, sin botón eliminar)
+          meta: { requiresAuth: true, requiresAdminOrPresidente: true }
         },
         {
           path: 'admin/fincas',
@@ -109,6 +110,8 @@ router.beforeEach((to, from, next) => {
     localStorage.clear();
     next('/login');
   } else if (to.meta.requiresAdmin && role !== 'admin') {
+    next('/app/dashboard');
+  } else if (to.meta.requiresAdminOrPresidente && role !== 'admin' && role !== 'presidente') {
     next('/app/dashboard');
   } else {
     next();

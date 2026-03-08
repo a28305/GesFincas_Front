@@ -6,7 +6,7 @@ import AppBrand from '@/components/AppBrand.vue';
 import { useUiStore } from '@/store/Uistore';
 import AuthToggle from '@/components/AuthToggle.vue';
 import PrimaryButton from '@/components/PrimaryButton.vue';
-import { useUserStore } from '@/store/userstore'; 
+import { useUserStore } from '@/store/userstore';
 
 const router = useRouter();
 const ui = useUiStore();
@@ -41,7 +41,6 @@ const handleLogin = async () => {
 
     userStore.setUserData(nombre, role);
 
-    // ── Si ya tiene piso asignado, lo cargamos ──
     if (hasPisos) {
       try {
         const pisoRes = await axios.get(`https://localhost:7152/api/pisos/mi-vivienda/${userId}`, {
@@ -49,7 +48,6 @@ const handleLogin = async () => {
         });
         const piso = pisoRes.data;
         if (piso && piso.nombre) {
-          // FIX: usar piso.id_piso en vez de userId
           userStore.setComunidad(String(piso.id_piso), piso.nombre);
         }
       } catch (pisoErr) {
@@ -57,7 +55,6 @@ const handleLogin = async () => {
       }
     }
 
-    // ── Redirección ──
     if (role === 'admin') {
       router.push('/app/dashboard');
     } else if (!hasPisos) {
@@ -75,12 +72,16 @@ const handleLogin = async () => {
 
 <template>
   <div class="login-container">
-    <AppBrand :width="120" />
-    <div class="form-section">
-      <input v-model="email" type="email" placeholder="Email" class="custom-input" autofocus>
-      <input v-model="password" type="password" placeholder="Contraseña" class="custom-input">
-      <AuthToggle activeMode="login" />
-      <PrimaryButton text="Iniciar sesión" @click="handleLogin" />
+    <div class="login-card">
+      <div class="brand-wrap">
+        <AppBrand :width="140" />
+      </div>
+      <div class="form-section">
+        <input v-model="email" type="email" placeholder="Email" class="custom-input" autofocus />
+        <input v-model="password" type="password" placeholder="Contraseña" class="custom-input" @keyup.enter="handleLogin" />
+        <AuthToggle activeMode="login" />
+        <PrimaryButton text="Iniciar sesión" @click="handleLogin" />
+      </div>
     </div>
   </div>
 </template>
@@ -93,14 +94,31 @@ const handleLogin = async () => {
   justify-content: center;
   min-height: 100vh;
   padding: 20px;
+  background-color: #FFF7ED; /* Fondo naranja suave — cámbialo aquí */
+  box-sizing: border-box;
 }
+
+.login-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 340px;
+  gap: 24px;
+}
+
+.brand-wrap {
+  pointer-events: none;
+  user-select: none;
+}
+
 .form-section {
   width: 100%;
-  max-width: 320px;
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
+
 .custom-input {
   width: 100%;
   padding: 15px 20px;
@@ -110,5 +128,10 @@ const handleLogin = async () => {
   font-size: 16px;
   box-sizing: border-box;
   outline: none;
+  color: #1a1a2e;
+  font-family: inherit;
 }
+
+.custom-input::placeholder { color: #8a7a5a; }
+.custom-input:focus { background-color: #ddd0a0; box-shadow: 0 0 0 3px rgba(255,140,0,0.15); }
 </style>

@@ -6,6 +6,7 @@ import ZonaCard from '@/components/ZonaCard.vue';
 import { useUserStore } from '@/store/userstore';
 import { useUiStore } from '@/store/Uistore';
 import axios from 'axios';
+import '@/assets/icomoon/icomoon.css';
 
 const userStore = useUserStore();
 const ui = useUiStore();
@@ -155,7 +156,7 @@ onMounted(() => fetchZonas());
 
     <div class="page-top">
       <div class="page-info">
-        <h2>🌳 Zonas Comunes</h2>
+        <h2><i class="icon-home3 title-icon"></i> Zonas Comunes</h2>
         <p>Reserva y gestiona el uso de las instalaciones comunitarias</p>
       </div>
       <button v-if="esAdmin" class="btn-nueva" @click="mostrarCrear = !mostrarCrear">
@@ -205,7 +206,7 @@ onMounted(() => fetchZonas());
     </div>
 
     <div v-else class="empty-state">
-      <span class="empty-icon">🏊</span>
+      <i class="icon-home3 empty-icon-i"></i>
       <h3>No hay zonas comunes registradas</h3>
       <p>{{ esAdmin ? 'Añade la primera zona común del edificio.' : 'El administrador aún no ha añadido zonas.' }}</p>
     </div>
@@ -218,14 +219,14 @@ onMounted(() => fetchZonas());
             <div class="reserva-header">
               <div>
                 <div class="reserva-title-row">
-                  <span class="reserva-icon">🏠</span>
+                  <i class="icon-home3 reserva-icon-i"></i>
                   <div>
                     <h3>Reservar Espacio</h3>
                     <p class="reserva-sub">{{ zonaSeleccionada.nombre ?? zonaSeleccionada.Nombre }}</p>
                   </div>
                 </div>
                 <div class="reserva-tags">
-                  <span class="r-tag">👥 Máx. {{ zonaSeleccionada.capacidad_max ?? zonaSeleccionada.Capacidad_max ?? 0 }} personas</span>
+                  <span class="r-tag"><i class="icon-users" style="margin-right:4px;color:#ff8c00"></i>Máx. {{ zonaSeleccionada.capacidad_max ?? zonaSeleccionada.Capacidad_max ?? 0 }} personas</span>
                 </div>
               </div>
               <button class="close-x" @click="mostrarReserva = false">✕</button>
@@ -274,7 +275,7 @@ onMounted(() => fetchZonas());
       <Transition name="modal">
         <div v-if="confirmandoEliminar" class="modal-overlay" @click.self="confirmandoEliminar = null">
           <div class="confirm-card">
-            <span class="confirm-icon">🗑️</span>
+            <i class="icon-bin confirm-icon-i"></i>
             <h3>¿Eliminar zona común?</h3>
             <p>Esta acción eliminará también las reservas asociadas.</p>
             <div class="confirm-actions">
@@ -367,4 +368,19 @@ onMounted(() => fetchZonas());
 
 @media (max-width: 1024px) { .zonas-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 640px) { .comunes-page { padding: 0 16px 20px; } .zonas-grid { grid-template-columns: 1fr; } .horarios-grid { grid-template-columns: repeat(2, 1fr); } }
+
+/* ── Icomoon shared icon styles ── */
+.title-icon { font-size: 1.3rem; color: #ff8c00; margin-right: 8px; vertical-align: middle; }
+.empty-icon-i { font-size: 3rem; color: #ff8c00; display: block; margin-bottom: 16px; }
+.confirm-icon-i { font-size: 2.5rem; color: #ff8c00; margin-bottom: 12px; display: block; }
+.stat-icon-i { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+.stat-icon-i.green { background: #e8f5e9; color: #22c55e; }
+.stat-icon-i.orange { background: #fff3e0; color: #f59e0b; }
+.drop-icon-i { font-size: 2rem; color: #ff8c00; display: block; margin-bottom: 8px; }
+.doc-icon-i { font-size: 1.4rem; color: #ff8c00; }
+.file-icon-i { font-size: 2rem; color: #ff8c00; }
+.file-icon-i.red { color: #ef4444; }
+.file-icon-i.blue { color: #3b82f6; }
+.file-icon-i.green { color: #22c55e; }
+.reserva-icon-i { width: 40px; height: 40px; background: #ff8c00; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; }
 </style>

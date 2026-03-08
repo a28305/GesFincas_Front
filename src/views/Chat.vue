@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import Header from '@/components/Header.vue';
 import { useUserStore } from '@/store/userstore';
 import axios from 'axios';
+import '@/assets/icomoon/icomoon.css';
 
 const userStore = useUserStore();
 const mensajes = ref<any[]>([]);
@@ -128,7 +129,7 @@ onUnmounted(() => {
     <div class="chat-wrapper">
       <div class="chat-header">
         <div class="chat-header-info">
-          <h3>💬 Chat de la Comunidad</h3>
+          <h3><i class="icon-bubbles title-icon"></i> Chat de la Comunidad</h3>
           <p>{{ userStore.viviendaNombre || 'Tu comunidad' }} · {{ mensajes.length }} mensajes</p>
         </div>
         <div class="online-indicator">
@@ -143,7 +144,7 @@ onUnmounted(() => {
         </div>
 
         <div v-else-if="mensajes.length === 0" class="chat-empty">
-          <span class="chat-empty-icon">💬</span>
+          <i class="icon-bubbles" style="font-size:3rem;color:#ff8c00;margin-bottom:12px"></i>
           <h4>No hay mensajes aún</h4>
           <p>Sé el primero en escribir en el chat de la comunidad</p>
         </div>
@@ -179,7 +180,7 @@ onUnmounted(() => {
           :disabled="enviando"
         ></textarea>
         <button class="btn-enviar" @click="enviarMensaje" :disabled="!nuevoMensaje.trim() || enviando">
-          {{ enviando ? '...' : '➤' }}
+          <i v-if="!enviando" class="icon-bullhorn" style="font-size:1rem"></i><span v-else>...</span>
         </button>
       </div>
     </div>
@@ -241,4 +242,19 @@ onUnmounted(() => {
   .chat-messages { padding: 14px 18px; }
   .chat-input-bar { padding: 12px 18px; }
 }
+
+/* ── Icomoon shared icon styles ── */
+.title-icon { font-size: 1.3rem; color: #ff8c00; margin-right: 8px; vertical-align: middle; }
+.empty-icon-i { font-size: 3rem; color: #ff8c00; display: block; margin-bottom: 16px; }
+.confirm-icon-i { font-size: 2.5rem; color: #ff8c00; margin-bottom: 12px; display: block; }
+.stat-icon-i { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+.stat-icon-i.green { background: #e8f5e9; color: #22c55e; }
+.stat-icon-i.orange { background: #fff3e0; color: #f59e0b; }
+.drop-icon-i { font-size: 2rem; color: #ff8c00; display: block; margin-bottom: 8px; }
+.doc-icon-i { font-size: 1.4rem; color: #ff8c00; }
+.file-icon-i { font-size: 2rem; color: #ff8c00; }
+.file-icon-i.red { color: #ef4444; }
+.file-icon-i.blue { color: #3b82f6; }
+.file-icon-i.green { color: #22c55e; }
+.reserva-icon-i { width: 40px; height: 40px; background: #ff8c00; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; }
 </style>
