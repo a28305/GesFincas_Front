@@ -4,6 +4,7 @@ defineProps<{
   showTitle?: boolean
 }>();
 </script>
+
 <template>
   <div class="brand-section">
     <img src="@/assets/logo_gesfincas.png" alt="Logo" class="logo-img" :style="{ width: width + 'px' }">
