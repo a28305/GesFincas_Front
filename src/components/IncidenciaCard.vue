@@ -21,7 +21,6 @@ const props = withDefaults(defineProps<{
 
 const emit = defineEmits(['ver-detalle']);
 
-// ===== HELPERS =====
 function getTitulo(): string {
   return props.item.titulo ?? props.item.Titulo ?? 'Sin título';
 }
@@ -38,7 +37,6 @@ function getFechaCreacion(): string {
   return props.item.fechaCreacion ?? props.item.FechaCreacion ?? '';
 }
 
-// Imágenes por categoría
 const defaultImage = 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=300&fit=crop';
 const categoryImages = new Map<string, string>([
   ['ascensor', 'https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=400&h=300&fit=crop'],
@@ -86,9 +84,9 @@ function getStatusClass(): string {
 
 function getPrioridadIcon(): string {
   const p = getPrioridad().toLowerCase();
-  if (p === 'alta') return '⚠️';
-  if (p === 'media') return '🔔';
-  return 'ℹ️';
+  if (p === 'alta') return 'icon-warning';
+  if (p === 'media') return 'icon-bell';
+  return 'icon-bubbles';
 }
 
 function getPrioridadClass(): string {
@@ -114,9 +112,7 @@ function getDescripcionLimpia(): string {
 function getApartamento(): string {
   const desc = getDescripcion();
   const match = desc.match(/Apt:\s*([^|]+)/i);
-  if (match && match[1]) {
-    return match[1].trim();
-  }
+  if (match && match[1]) return match[1].trim();
   return '';
 }
 </script>
@@ -124,26 +120,22 @@ function getApartamento(): string {
 <template>
   <!-- MODO CARD -->
   <div v-if="mode === 'card'" class="card" @click="emit('ver-detalle', item)">
-    <!-- Imagen -->
     <div class="card-img" :style="{ backgroundImage: 'url(' + getImagenUrl() + ')' }">
-      <!-- Icono prioridad arriba-izquierda -->
-      <span :class="['prio-icon', getPrioridadClass()]">{{ getPrioridadIcon() }}</span>
-      <!-- Badge estado arriba-derecha -->
+      <span :class="['prio-icon', getPrioridadClass()]">
+        <i :class="getPrioridadIcon()"></i>
+      </span>
       <span :class="['status-badge', getStatusClass()]">{{ getStatusLabel() }}</span>
     </div>
 
-    <!-- Body -->
     <div class="card-body">
       <h4 class="card-title">{{ getTitulo() }}</h4>
       <p class="card-desc">{{ getDescripcionLimpia() }}</p>
-      
-      <!-- Info: usuario + fecha -->
+
       <div class="card-info">
-        <span class="info-item">👤 {{ getApartamento() || 'Vecino' }}</span>
-        <span class="info-item">📅 {{ getFechaFormateada() }}</span>
+        <span class="info-item"><i class="icon-users"></i> {{ getApartamento() || 'Vecino' }}</span>
+        <span class="info-item"><i class="icon-bell"></i> {{ getFechaFormateada() }}</span>
       </div>
 
-      <!-- Botón -->
       <button class="btn-ver" @click.stop="emit('ver-detalle', item)">Ver Detalles</button>
     </div>
   </div>
@@ -163,13 +155,15 @@ function getApartamento(): string {
 </template>
 
 <style scoped>
+@import '@/assets/icomoon/icomoon.css';
+
 /* ========================
    MODO CARD
    ======================== */
 .card {
   border-radius: 16px;
   overflow: hidden;
-  background: white;
+  background: var(--bg-card, white);
   box-shadow: 0 2px 12px rgba(0,0,0,0.06);
   transition: all 0.3s ease;
   cursor: pointer;
@@ -178,10 +172,9 @@ function getApartamento(): string {
 }
 .card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 28px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.12);
 }
 
-/* Imagen */
 .card-img {
   height: 190px;
   background-size: cover;
@@ -190,59 +183,49 @@ function getApartamento(): string {
   position: relative;
 }
 
-/* Icono prioridad (arriba-izquierda) */
 .prio-icon {
   position: absolute;
-  top: 12px;
-  left: 12px;
-  width: 32px;
-  height: 32px;
+  top: 12px; left: 12px;
+  width: 32px; height: 32px;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
 }
-.prio-alta { background: #fee2e2; }
-.prio-media { background: #fff7ed; }
-.prio-baja { background: #e0f2fe; }
+.prio-alta  { background: rgba(239,68,68,0.15); }
+.prio-media { background: rgba(245,158,11,0.15); }
+.prio-baja  { background: rgba(59,130,246,0.15); }
+.prio-icon i { font-size: 0.85rem; }
+.prio-alta  i { color: #ef4444; }
+.prio-media i { color: #f59e0b; }
+.prio-baja  i { color: #3b82f6; }
 
-/* Badge estado (arriba-derecha) */
 .status-badge {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  padding: 5px 14px;
-  border-radius: 8px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  color: white;
+  top: 12px; right: 12px;
+  padding: 5px 14px; border-radius: 8px;
+  font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 0.5px; color: white;
 }
-.badge-red { background: #ef4444; }
+.badge-red    { background: #ef4444; }
 .badge-orange { background: #f59e0b; }
-.badge-green { background: #22c55e; }
-.badge-blue { background: #3b82f6; }
-.badge-grey { background: #9ca3af; }
+.badge-green  { background: #22c55e; }
+.badge-blue   { background: #3b82f6; }
+.badge-grey   { background: #9ca3af; }
 
-/* Body */
 .card-body {
   padding: 18px 20px 20px;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+  display: flex; flex-direction: column; flex: 1;
+  background: var(--bg-card, white);
 }
 .card-title {
   margin: 0 0 6px 0;
-  font-size: 1.02rem;
-  font-weight: 700;
-  color: #1a1a2e;
+  font-size: 1.02rem; font-weight: 700;
+  color: var(--text-primary, #1a1a2e);
   line-height: 1.35;
 }
 .card-desc {
   margin: 0 0 14px 0;
   font-size: 0.84rem;
-  color: #6b7280;
+  color: var(--text-secondary, #6b7280);
   line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -251,30 +234,23 @@ function getApartamento(): string {
   flex: 1;
 }
 
-/* Info usuario + fecha */
 .card-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-bottom: 16px;
+  display: flex; flex-direction: column;
+  gap: 4px; margin-bottom: 16px;
 }
 .info-item {
   font-size: 0.78rem;
-  color: #9ca3af;
+  color: var(--text-muted, #9ca3af);
+  display: flex; align-items: center; gap: 5px;
 }
+.info-item i { color: #ff8c00; font-size: 0.75rem; }
 
-/* Botón Ver Detalles */
 .btn-ver {
-  width: 100%;
-  padding: 12px;
-  background: #ff8c00;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-weight: 700;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: 0.25s;
+  width: 100%; padding: 12px;
+  background: #ff8c00; color: white;
+  border: none; border-radius: 12px;
+  font-weight: 700; font-size: 0.9rem;
+  cursor: pointer; transition: 0.25s;
 }
 .btn-ver:hover {
   background: #e67e00;
@@ -286,59 +262,43 @@ function getApartamento(): string {
    MODO ROW (Dashboard)
    ======================== */
 .row {
-  display: flex;
-  gap: 15px;
+  display: flex; gap: 15px;
   padding: 14px 0;
-  border-bottom: 1px solid #f0f0f0;
-  cursor: pointer;
-  transition: 0.2s;
+  border-bottom: 1px solid var(--border-input, #f0f0f0);
+  cursor: pointer; transition: 0.2s;
 }
 .row:hover {
-  background: #fafbfc;
-  margin: 0 -10px;
-  padding: 14px 10px;
+  background: var(--bg-input, #fafbfc);
+  margin: 0 -10px; padding: 14px 10px;
   border-radius: 12px;
 }
 .row-img {
-  width: 50px;
-  height: 50px;
+  width: 50px; height: 50px;
   border-radius: 12px;
-  background-size: cover;
-  background-position: center;
-  background-color: #e8e8e8;
+  background-size: cover; background-position: center;
+  background-color: var(--bg-input, #e8e8e8);
   flex-shrink: 0;
 }
 .row-body { flex: 1; min-width: 0; }
 .row-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 4px;
+  display: flex; justify-content: space-between;
+  align-items: center; margin-bottom: 4px;
 }
 .status-badge-sm {
-  font-size: 0.62rem;
-  padding: 2px 8px;
-  border-radius: 5px;
-  color: white;
-  font-weight: 700;
-  text-transform: uppercase;
+  font-size: 0.62rem; padding: 2px 8px;
+  border-radius: 5px; color: white;
+  font-weight: 700; text-transform: uppercase;
 }
-.row-date { font-size: 0.75rem; color: #9ca3af; }
+.row-date { font-size: 0.75rem; color: var(--text-muted, #9ca3af); }
 .row-title {
-  margin: 0;
-  font-size: 0.92rem;
-  color: #2c3e50;
+  margin: 0; font-size: 0.92rem;
+  color: var(--text-primary, #2c3e50);
   font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .row-desc {
-  margin: 3px 0 0 0;
-  font-size: 0.82rem;
-  color: #7f8c8d;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  margin: 3px 0 0 0; font-size: 0.82rem;
+  color: var(--text-secondary, #7f8c8d);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 </style>

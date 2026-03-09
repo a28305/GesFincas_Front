@@ -45,7 +45,7 @@ function toggleDark() {
 
       <nav class="nav-links">
         <router-link to="/app/dashboard" class="nav-item" @click="isMenuOpen = false">
-          <i class="icon icon-stats-dots"></i> Dashboard
+          <i class="icon icon-stats-dots"></i> Menu
         </router-link>
         <router-link to="/app/incidencias" class="nav-item" @click="isMenuOpen = false">
           <i class="icon icon-warning"></i> Incidencias

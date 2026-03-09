@@ -58,21 +58,17 @@ function cerrarSesion(): void {
 
             <div class="perfil-info">
               <div class="perfil-row">
-                <span class="perfil-label">📧 Email</span>
-                <span class="perfil-value">{{ userEmail}}</span>
+                <span class="perfil-label"><i class="icon-bullhorn"></i> Email</span>
+                <span class="perfil-value">{{ userEmail }}</span>
               </div>
               <div class="perfil-row">
-                <span class="perfil-label">🏢 Comunidad</span>
+                <span class="perfil-label"><i class="icon-home3"></i> Comunidad</span>
                 <span class="perfil-value">{{ nombreVivienda }}</span>
-              </div>
-              <div class="perfil-row">
-                <span class="perfil-label">🔑 ID Usuario</span>
-                <span class="perfil-value">#{{userId}}</span>
               </div>
             </div>
 
             <div class="perfil-actions">
-              <button class="btn-cerrar-sesion" @click="cerrarSesion">🚪 Cerrar Sesión</button>
+              <button class="btn-cerrar-sesion" @click="cerrarSesion"><i class="icon-exit"></i> Cerrar Sesión</button>
             </div>
           </div>
         </div>
@@ -82,6 +78,8 @@ function cerrarSesion(): void {
 </template>
 
 <style scoped>
+@import '@/assets/icomoon/icomoon.css';
+
 .main-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; background: transparent; margin-bottom: 20px; }
 .welcome-section h1 { font-size: 1.5rem; color: #1a1a2e; margin: 0; }
 .welcome-section p { color: #7f8c8d; margin: 5px 0 0 0; font-size: 0.9rem; }
@@ -108,11 +106,13 @@ function cerrarSesion(): void {
 .perfil-info { margin-bottom: 24px; }
 .perfil-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid #f3f4f6; }
 .perfil-row:last-child { border-bottom: none; }
-.perfil-label { font-size: 0.85rem; color: #6b7280; }
+.perfil-label { font-size: 0.85rem; color: #6b7280; display: flex; align-items: center; gap: 6px; }
+.perfil-label i { font-size: 0.95rem; color: #ff8c00; }
 .perfil-value { font-size: 0.88rem; color: #1a1a2e; font-weight: 600; }
 
 .perfil-actions { display: flex; flex-direction: column; gap: 10px; }
-.btn-cerrar-sesion { width: 100%; padding: 14px; background: #fef2f2; color: #ef4444; border: 1px solid #fee2e2; border-radius: 30px; font-weight: 700; font-size: 0.92rem; cursor: pointer; transition: 0.2s; }
+.btn-cerrar-sesion { width: 100%; padding: 14px; background: #fef2f2; color: #ef4444; border: 1px solid #fee2e2; border-radius: 30px; font-weight: 700; font-size: 0.92rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-cerrar-sesion i { font-size: 1rem; }
 .btn-cerrar-sesion:hover { background: #fee2e2; }
 
 .modal-enter-active { animation: modalIn 0.3s ease; }

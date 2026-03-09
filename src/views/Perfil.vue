@@ -160,10 +160,6 @@ onMounted(async () => {
               <span class="info-value">{{ email || 'No disponible' }}</span>
             </div>
             <div class="info-row">
-              <span class="info-label">ID Usuario</span>
-              <span class="info-value">#{{ userId }}</span>
-            </div>
-            <div class="info-row">
               <span class="info-label">Comunidad</span>
               <span class="info-value">{{ comunidad }}</span>
             </div>

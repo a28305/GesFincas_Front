@@ -15,7 +15,6 @@ const mostrarModal = ref(false);
 const filtroActivo = ref('Todas');
 const filtros = ['Todas', 'Nuevas', 'En Proceso', 'Resueltas'];
 
-// Modal de detalle
 const mostrarDetalle = ref(false);
 const incidenciaSeleccionada = ref<Record<string, any> | null>(null);
 const nuevoEstado = ref('');
@@ -41,7 +40,6 @@ const incidenciasFiltradas = computed(() => {
   });
 });
 
-// Abrir modal de detalle
 function abrirDetalle(item: Record<string, any>): void {
   incidenciaSeleccionada.value = item;
   nuevoEstado.value = item.estado ?? item.Estado ?? '';
@@ -53,26 +51,17 @@ function cerrarDetalle(): void {
   incidenciaSeleccionada.value = null;
 }
 
-// Solo admin puede cambiar estado
 async function actualizarEstado(): Promise<void> {
   if (!incidenciaSeleccionada.value || !nuevoEstado.value) return;
-
   const id = incidenciaSeleccionada.value.id_incidencias ?? incidenciaSeleccionada.value.Id_incidencias;
   const token = localStorage.getItem('token');
-
   actualizando.value = true;
   try {
     await axios.patch(
       `https://localhost:7152/api/Incidencias/${id}/estado`,
       JSON.stringify(nuevoEstado.value),
-      {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      }
+      { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } }
     );
-    // Refrescar lista
     await incidenciaStore.fetchIncidencias();
     cerrarDetalle();
   } catch (err) {
@@ -83,7 +72,6 @@ async function actualizarEstado(): Promise<void> {
   }
 }
 
-// Helpers para el modal de detalle
 function getDetalleTitulo(): string {
   if (!incidenciaSeleccionada.value) return '';
   return incidenciaSeleccionada.value.titulo ?? incidenciaSeleccionada.value.Titulo ?? 'Sin título';
@@ -155,7 +143,6 @@ onMounted(async () => {
   <div class="incidencias-page">
     <Header />
 
-    <!-- Cabecera -->
     <div class="page-top">
       <div class="page-info">
         <h2>Incidencias</h2>
@@ -164,7 +151,6 @@ onMounted(async () => {
       <button class="btn-nueva" @click="mostrarModal = true">+ Nueva Incidencia</button>
     </div>
 
-    <!-- Filtros -->
     <div class="filtros-bar">
       <span class="filtro-label">Estado:</span>
       <button
@@ -174,10 +160,8 @@ onMounted(async () => {
       >{{ f }}</button>
     </div>
 
-    <!-- Loading -->
     <p v-if="incidenciaStore.loading" class="info-msg">Cargando incidencias...</p>
 
-    <!-- Grid de Cards -->
     <div v-else-if="incidenciasFiltradas.length > 0" class="cards-grid">
       <IncidenciaCard
         v-for="item in incidenciasFiltradas"
@@ -188,25 +172,19 @@ onMounted(async () => {
       />
     </div>
 
-    <!-- Empty -->
     <div v-else class="empty-state">
-      <span class="empty-icon">📋</span>
+      <span class="empty-icon"><i class="icon-file-text"></i></span>
       <h3>No hay incidencias</h3>
       <p>{{ filtroActivo === 'Todas' ? 'Aún no se han reportado incidencias.' : 'No hay incidencias con ese estado.' }}</p>
       <button v-if="filtroActivo === 'Todas'" class="btn-nueva small" @click="mostrarModal = true">+ Reportar la primera</button>
     </div>
 
-    <!-- Modal Nueva Incidencia -->
     <ModalNuevaIncidencia :show="mostrarModal" @close="mostrarModal = false" />
 
-    <!-- ================================
-         MODAL DE DETALLE DE INCIDENCIA
-         ================================ -->
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="mostrarDetalle && incidenciaSeleccionada" class="detalle-overlay" @click.self="cerrarDetalle">
           <div class="detalle-card">
-            <!-- Imagen grande -->
             <div class="detalle-img" :style="{ backgroundImage: 'url(' + getDetalleImagen() + ')' }">
               <span :class="['detalle-badge', getStatusClass(getDetalleEstado())]">
                 {{ getDetalleEstado().toUpperCase() }}
@@ -214,22 +192,20 @@ onMounted(async () => {
               <button class="detalle-close" @click="cerrarDetalle">✕</button>
             </div>
 
-            <!-- Contenido -->
             <div class="detalle-body">
               <h2 class="detalle-titulo">{{ getDetalleTitulo() }}</h2>
               <p class="detalle-desc">{{ getDetalleDescripcion() }}</p>
 
-              <!-- Info pills -->
               <div class="detalle-pills">
                 <div class="pill">
-                  <span class="pill-icon">👤</span>
+                  <span class="pill-icon"><i class="icon-users"></i></span>
                   <div>
                     <small>Reportado por</small>
                     <strong>Apartamento {{ getDetalleApartamento() }}</strong>
                   </div>
                 </div>
                 <div class="pill">
-                  <span class="pill-icon">📅</span>
+                  <span class="pill-icon"><i class="icon-bell"></i></span>
                   <div>
                     <small>Fecha de reporte</small>
                     <strong>{{ getDetalleFecha() }}</strong>
@@ -237,22 +213,15 @@ onMounted(async () => {
                 </div>
               </div>
 
-              <!-- Botones -->
               <div class="detalle-actions">
                 <button class="btn-cerrar" @click="cerrarDetalle">Cerrar</button>
-
-                <!-- SOLO ADMIN ve esto -->
                 <div v-if="esAdmin" class="admin-estado">
                   <select v-model="nuevoEstado" class="estado-select">
                     <option value="Nueva">Nueva</option>
                     <option value="En Proceso">En Proceso</option>
                     <option value="Resuelta">Resuelta</option>
                   </select>
-                  <button 
-                    class="btn-actualizar" 
-                    @click="actualizarEstado"
-                    :disabled="actualizando"
-                  >
+                  <button class="btn-actualizar" @click="actualizarEstado" :disabled="actualizando">
                     {{ actualizando ? 'Guardando...' : 'Actualizar Estado' }}
                   </button>
                 </div>
@@ -268,8 +237,9 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+/* Usa variables CSS del dark-theme.css para adaptarse automáticamente */
 .incidencias-page {
-  background-color: #f4f7f6;
+  background-color: var(--bg-app, #f4f7f6);
   min-height: 100vh;
   padding: 0 30px 30px 30px;
   display: flex;
@@ -283,8 +253,8 @@ onMounted(async () => {
   align-items: center;
   margin-bottom: 24px;
 }
-.page-info h2 { margin: 0; font-size: 1.6rem; color: #1a1a2e; font-weight: 700; }
-.page-info p { margin: 4px 0 0 0; color: #7f8c8d; font-size: 0.9rem; }
+.page-info h2 { margin: 0; font-size: 1.6rem; color: var(--text-primary, #1a1a2e); font-weight: 700; }
+.page-info p  { margin: 4px 0 0 0; color: var(--text-secondary, #7f8c8d); font-size: 0.9rem; }
 
 .btn-nueva {
   background: #ff8c00; color: white; border: none;
@@ -302,11 +272,16 @@ onMounted(async () => {
 .filtros-bar {
   display: flex; align-items: center; gap: 8px; margin-bottom: 28px;
 }
-.filtro-label { font-weight: 600; color: #6B7280; font-size: 0.88rem; margin-right: 4px; }
+.filtro-label {
+  font-weight: 600; font-size: 0.88rem; margin-right: 4px;
+  color: var(--text-secondary, #6b7280);
+}
 .filtro-btn {
   padding: 8px 20px; border-radius: 10px;
-  border: 1.5px solid #E5E7EB; background: white;
-  color: #6B7280; font-weight: 600; font-size: 0.85rem;
+  border: 1.5px solid var(--border-input, #E5E7EB);
+  background: var(--bg-card, white);
+  color: var(--text-secondary, #6b7280);
+  font-weight: 600; font-size: 0.85rem;
   cursor: pointer; transition: 0.2s;
 }
 .filtro-btn:hover { border-color: #FFD9A0; color: #ff8c00; }
@@ -326,32 +301,31 @@ onMounted(async () => {
   align-items: center; justify-content: center;
   text-align: center; padding: 60px 20px;
 }
-.empty-icon { font-size: 3rem; margin-bottom: 16px; }
-.empty-state h3 { margin: 0 0 8px 0; color: #374151; font-size: 1.2rem; }
-.empty-state p { margin: 0 0 20px 0; color: #95a5a6; font-size: 0.9rem; }
-.info-msg { text-align: center; color: #95a5a6; padding: 40px; font-size: 0.9rem; }
+.empty-icon { font-size: 3rem; margin-bottom: 16px; color: var(--text-muted, #d1d5db); }
+.empty-icon i { font-size: 3rem; }
+.empty-state h3 { margin: 0 0 8px 0; color: var(--text-primary, #374151); font-size: 1.2rem; }
+.empty-state p  { margin: 0 0 20px 0; color: var(--text-secondary, #95a5a6); font-size: 0.9rem; }
+.info-msg { text-align: center; color: var(--text-secondary, #95a5a6); padding: 40px; font-size: 0.9rem; }
 
-/* ================================
-   MODAL DETALLE
-   ================================ */
+/* MODAL DETALLE */
 .detalle-overlay {
   position: fixed; inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.6);
   backdrop-filter: blur(6px);
   display: flex; align-items: center; justify-content: center;
   z-index: 9999;
 }
 .detalle-card {
-  background: white;
+  background: var(--bg-card, white);
   width: 100%; max-width: 500px;
   border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.3);
   max-height: 90vh;
   overflow-y: auto;
+  border: 1px solid var(--border-input, transparent);
 }
 
-/* Imagen del detalle */
 .detalle-img {
   height: 220px;
   background-size: cover;
@@ -365,73 +339,69 @@ onMounted(async () => {
   font-size: 0.75rem; font-weight: 700;
   color: white; letter-spacing: 0.5px;
 }
-.badge-red { background: #ef4444; }
+.badge-red    { background: #ef4444; }
 .badge-orange { background: #f59e0b; }
-.badge-green { background: #22c55e; }
-.badge-blue { background: #3b82f6; }
-.badge-grey { background: #9ca3af; }
+.badge-green  { background: #22c55e; }
+.badge-blue   { background: #3b82f6; }
+.badge-grey   { background: #9ca3af; }
 
 .detalle-close {
   position: absolute; top: 16px; right: 16px;
   width: 36px; height: 36px; border-radius: 50%;
-  background: rgba(255,255,255,0.9); border: none;
-  cursor: pointer; font-size: 1.1rem; color: #374151;
+  background: rgba(0,0,0,0.4); border: none;
+  cursor: pointer; font-size: 1.1rem; color: white;
   display: flex; align-items: center; justify-content: center;
   transition: 0.2s;
 }
-.detalle-close:hover { background: white; }
+.detalle-close:hover { background: rgba(0,0,0,0.6); }
 
-/* Body detalle */
-.detalle-body { padding: 28px; }
-.detalle-titulo { margin: 0 0 8px 0; font-size: 1.3rem; font-weight: 700; color: #1a1a2e; }
-.detalle-desc { margin: 0 0 24px 0; font-size: 0.92rem; color: #6b7280; line-height: 1.6; }
+.detalle-body { padding: 28px; background: var(--bg-card, white); }
+.detalle-titulo { margin: 0 0 8px 0; font-size: 1.3rem; font-weight: 700; color: var(--text-primary, #1a1a2e); }
+.detalle-desc   { margin: 0 0 24px 0; font-size: 0.92rem; color: var(--text-secondary, #6b7280); line-height: 1.6; }
 
-/* Pills de info */
 .detalle-pills {
   display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 28px;
 }
 .pill {
   display: flex; align-items: center; gap: 12px;
-  background: #FFF7ED; padding: 14px 18px;
-  border-radius: 14px; flex: 1; min-width: 180px;
+  background: var(--accent-light, #FFF7ED);
+  padding: 14px 18px; border-radius: 14px;
+  flex: 1; min-width: 180px;
 }
 .pill-icon {
   width: 36px; height: 36px; background: #ff8c00;
   border-radius: 50%; display: flex; align-items: center;
-  justify-content: center; font-size: 16px; flex-shrink: 0;
+  justify-content: center; font-size: 1rem; color: white; flex-shrink: 0;
 }
-.pill small { display: block; font-size: 0.72rem; color: #9ca3af; margin-bottom: 2px; }
-.pill strong { font-size: 0.88rem; color: #1a1a2e; }
+.pill small    { display: block; font-size: 0.72rem; color: var(--text-muted, #9ca3af); margin-bottom: 2px; }
+.pill strong   { font-size: 0.88rem; color: var(--text-primary, #1a1a2e); }
 
-/* Botones detalle */
-.detalle-actions {
-  display: flex; flex-direction: column; gap: 12px;
-}
+.detalle-actions { display: flex; flex-direction: column; gap: 12px; }
+
 .btn-cerrar {
-  width: 100%; padding: 14px; background: #F3F4F6;
-  border: none; border-radius: 30px; font-weight: 600;
-  cursor: pointer; color: #6B7280; font-size: 0.95rem;
-  transition: 0.2s;
+  width: 100%; padding: 14px;
+  background: var(--bg-input, #F3F4F6);
+  border: 1px solid var(--border-input, #e5e7eb);
+  border-radius: 30px; font-weight: 600;
+  cursor: pointer; color: var(--text-secondary, #6b7280);
+  font-size: 0.95rem; transition: 0.2s;
 }
-.btn-cerrar:hover { background: #E5E7EB; color: #374151; }
+.btn-cerrar:hover { opacity: 0.85; }
 
-/* ADMIN: Selector + botón actualizar */
-.admin-estado {
-  display: flex; gap: 12px;
-}
+.admin-estado { display: flex; gap: 12px; }
 .estado-select {
   flex: 1; padding: 14px 16px; border-radius: 14px;
-  border: 1.5px solid #E5E7EB; background: #FAFAFA;
+  border: 1.5px solid var(--border-input, #E5E7EB);
+  background: var(--bg-input, #FAFAFA);
   font-family: inherit; font-size: 0.9rem;
-  color: #374151; outline: none; cursor: pointer;
+  color: var(--text-primary, #374151); outline: none; cursor: pointer;
 }
 .estado-select:focus { border-color: #ff8c00; }
 
 .btn-actualizar {
   flex: 1; padding: 14px; background: #ff8c00;
   color: white; border: none; border-radius: 30px;
-  font-weight: 700; font-size: 0.9rem; cursor: pointer;
-  transition: 0.25s;
+  font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.25s;
 }
 .btn-actualizar:hover:not(:disabled) {
   background: #e67e00;
@@ -439,18 +409,14 @@ onMounted(async () => {
 }
 .btn-actualizar:disabled { background: #d1d5db; cursor: not-allowed; }
 
-/* ANIMACIONES */
 .modal-enter-active { animation: modalIn 0.3s ease; }
 .modal-leave-active { animation: modalIn 0.2s ease reverse; }
 @keyframes modalIn {
   from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
-/* RESPONSIVE */
-@media (max-width: 1024px) {
-  .cards-grid { grid-template-columns: repeat(2, 1fr); }
-}
+@media (max-width: 1024px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 640px) {
   .incidencias-page { padding: 0 16px 20px; }
   .page-top { flex-direction: column; align-items: flex-start; gap: 16px; }

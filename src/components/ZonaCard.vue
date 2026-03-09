@@ -39,17 +39,21 @@ function getFoto(): string {
       <h4>{{ getNombre() }}</h4>
       <p class="zona-desc">{{ getDescripcion() }}</p>
       <div class="zona-meta">
-        <span>👥 Capacidad: {{ getCapacidad() }} personas</span>
+        <span><i class="icon-users"></i> Capacidad: {{ getCapacidad() }} personas</span>
       </div>
       <div class="zona-actions">
         <button class="btn-reservar" @click="emit('reservar', zona)">Reservar</button>
-        <button v-if="esAdmin" class="btn-eliminar-zona" @click="emit('eliminar', zona.id_zona)">🗑️</button>
+        <<button v-if="esAdmin" class="btn-eliminar-zona" @click="emit('eliminar', zona.id_zona)"><i class="icon-exit"></i></button>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+@import '@/assets/icomoon/icomoon.css';
+
+.zona-meta i { color: #ff8c00; margin-right: 4px; font-size: 0.8rem; }
+.btn-eliminar-zona i { color: #ef4444; font-size: 0.9rem; }
 .zona-card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.06); transition: 0.3s; }
 .zona-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
 .zona-img { height: 180px; background-size: cover; background-position: center; position: relative; }

@@ -91,7 +91,7 @@ onMounted(() => fetchFincas());
 
     <div class="page-top">
       <div class="page-info">
-        <h2>🏢 Gestión de Comunidades</h2>
+        <h2><i class="icon-home3"></i> Gestión de Comunidades</h2>
         <p>Haz click en una comunidad para gestionarla. La activa se resalta en naranja.</p>
       </div>
       <button class="btn-nueva" @click="mostrarCrear = !mostrarCrear">
@@ -131,18 +131,20 @@ onMounted(() => fetchFincas());
         :class="['finca-card', { activa: esActiva(f) }]"
         @click="seleccionarFinca(f)">
         <div class="finca-img" :style="{ backgroundImage: 'url(' + getFoto(f.nombre ?? f.Nombre ?? '') + ')' }">
-          <button class="btn-eliminar-finca" @click.stop="confirmandoEliminar = f.id_piso ?? f.Id_piso">🗑️</button>
+          <button class="btn-eliminar-finca" @click.stop="confirmandoEliminar = f.id_piso ?? f.Id_piso">
+            <i class="icon-exit"></i>
+          </button>
           <span v-if="esActiva(f)" class="active-badge">ACTIVA</span>
         </div>
         <div class="finca-body">
           <h4>{{ f.nombre ?? f.Nombre ?? 'Sin nombre' }}</h4>
-          <p class="finca-dir">📍 {{ f.direccion ?? f.Direccion ?? 'Sin dirección' }}</p>
+          <p class="finca-dir"><i class="icon-location2"></i> {{ f.direccion ?? f.Direccion ?? 'Sin dirección' }}</p>
         </div>
       </div>
     </div>
 
     <div v-else class="empty-state">
-      <span class="empty-icon">🏢</span>
+      <span class="empty-icon"><i class="icon-home3"></i></span>
       <h3>No hay comunidades</h3>
       <p>Crea la primera para empezar.</p>
     </div>
@@ -152,7 +154,7 @@ onMounted(() => fetchFincas());
       <Transition name="modal">
         <div v-if="confirmandoEliminar" class="modal-overlay" @click.self="confirmandoEliminar = null">
           <div class="confirm-card">
-            <span class="confirm-icon">🗑️</span>
+            <span class="confirm-icon"><i class="icon-wrench2"></i></span>
             <h3>¿Eliminar comunidad?</h3>
             <p>Se eliminarán los vecinos asociados.</p>
             <div class="confirm-actions">
@@ -169,9 +171,12 @@ onMounted(() => fetchFincas());
 </template>
 
 <style scoped>
+@import '@/assets/icomoon/icomoon.css';
+
 .admin-page { background: #f4f7f6; min-height: 100vh; padding: 0 30px 30px; display: flex; flex-direction: column; }
 .page-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-.page-info h2 { margin: 0; font-size: 1.6rem; color: #1a1a2e; }
+.page-info h2 { margin: 0; font-size: 1.6rem; color: #1a1a2e; display: flex; align-items: center; gap: 10px; }
+.page-info h2 i { color: #ff8c00; }
 .page-info p { margin: 4px 0 0 0; color: #7f8c8d; font-size: 0.9rem; }
 .btn-nueva { background: #ff8c00; color: white; border: none; padding: 14px 28px; border-radius: 30px; font-weight: 700; cursor: pointer; }
 .btn-nueva:hover { background: #e67e00; }
@@ -196,20 +201,25 @@ onMounted(() => fetchFincas());
 .finca-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
 .finca-card.activa { border-color: #ff8c00; }
 .finca-img { height: 160px; background-size: cover; background-position: center; background-color: #e5e7eb; position: relative; }
-.btn-eliminar-finca { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); border: none; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; }
-.btn-eliminar-finca:hover { background: #fee2e2; }
+.btn-eliminar-finca { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); border: none; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.btn-eliminar-finca i { font-size: 0.9rem; color: white; }
+.btn-eliminar-finca:hover { background: #ef4444; }
+.btn-eliminar-finca:hover i { color: white; }
 .active-badge { position: absolute; top: 10px; left: 10px; background: #ff8c00; color: white; padding: 4px 14px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.5px; }
 .finca-body { padding: 18px; }
 .finca-body h4 { margin: 0 0 6px 0; font-size: 1.05rem; color: #1a1a2e; font-weight: 700; }
-.finca-dir { margin: 0; font-size: 0.84rem; color: #6b7280; }
+.finca-dir { margin: 0; font-size: 0.84rem; color: #6b7280; display: flex; align-items: center; gap: 5px; }
+.finca-dir i { color: #ff8c00; font-size: 0.8rem; }
 
 .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 60px; }
-.empty-icon { font-size: 3rem; display: block; margin-bottom: 16px; }
+.empty-icon { display: block; margin-bottom: 16px; }
+.empty-icon i { font-size: 3rem; color: #d1d5db; }
 .info-msg { text-align: center; color: #95a5a6; padding: 40px; }
 
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 9999; }
 .confirm-card { background: white; max-width: 380px; width: 100%; border-radius: 24px; padding: 36px; text-align: center; box-shadow: 0 25px 60px rgba(0,0,0,0.2); }
-.confirm-icon { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+.confirm-icon { display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+.confirm-icon i { font-size: 2.5rem; color: #ef4444; }
 .confirm-card h3 { margin: 0 0 8px 0; }
 .confirm-card p { color: #6b7280; margin-bottom: 24px; }
 .confirm-actions { display: flex; gap: 12px; }

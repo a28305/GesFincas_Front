@@ -183,7 +183,7 @@ onMounted(() => fetchZonas());
           </div>
           <div class="input-group full">
             <label>URL de la foto</label>
-            <input v-model="nuevaZona.foto_url" type="text" placeholder="https://... (deja vacío para imagen automática)" class="form-input">
+            <input v-model="nuevaZona.foto_url" type="text" placeholder="https://..." class="form-input">
             <small class="hint">Puedes buscar fotos gratis en unsplash.com y pegar la URL</small>
           </div>
           <div v-if="nuevaZona.foto_url" class="img-preview full">
