@@ -318,7 +318,6 @@ onMounted(() => fetchZonas());
 
 .zonas-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; flex: 1; }
 .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 60px 20px; }
-.empty-icon { font-size: 3rem; margin-bottom: 16px; }
 .empty-state h3 { margin: 0 0 8px 0; color: #374151; }
 .empty-state p { margin: 0; color: #95a5a6; }
 .info-msg { text-align: center; color: #95a5a6; padding: 40px; }
@@ -327,7 +326,6 @@ onMounted(() => fetchZonas());
 .modal-reserva { background: white; width: 100%; max-width: 480px; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
 .reserva-header { background: #FFF7ED; padding: 24px 28px; display: flex; justify-content: space-between; align-items: flex-start; }
 .reserva-title-row { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
-.reserva-icon { width: 40px; height: 40px; background: #ff8c00; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
 .reserva-header h3 { margin: 0; font-size: 1.15rem; color: #1a1a2e; font-weight: 700; }
 .reserva-sub { margin: 2px 0 0 0; font-size: 0.85rem; color: #6b7280; }
 .reserva-tags { display: flex; gap: 8px; }
@@ -352,7 +350,6 @@ onMounted(() => fetchZonas());
 .btn-confirmar:disabled { background: #d1d5db; cursor: not-allowed; }
 
 .confirm-card { background: white; max-width: 380px; width: 100%; border-radius: 24px; padding: 36px; text-align: center; box-shadow: 0 25px 60px rgba(0,0,0,0.2); }
-.confirm-icon { font-size: 2.5rem; margin-bottom: 12px; display: block; }
 .confirm-card h3 { margin: 0 0 8px 0; color: #1a1a2e; }
 .confirm-card p { color: #6b7280; margin-bottom: 24px; }
 .confirm-actions { display: flex; gap: 12px; }
@@ -373,14 +370,5 @@ onMounted(() => fetchZonas());
 .title-icon { font-size: 1.3rem; color: #ff8c00; margin-right: 8px; vertical-align: middle; }
 .empty-icon-i { font-size: 3rem; color: #ff8c00; display: block; margin-bottom: 16px; }
 .confirm-icon-i { font-size: 2.5rem; color: #ff8c00; margin-bottom: 12px; display: block; }
-.stat-icon-i { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
-.stat-icon-i.green { background: #e8f5e9; color: #22c55e; }
-.stat-icon-i.orange { background: #fff3e0; color: #f59e0b; }
-.drop-icon-i { font-size: 2rem; color: #ff8c00; display: block; margin-bottom: 8px; }
-.doc-icon-i { font-size: 1.4rem; color: #ff8c00; }
-.file-icon-i { font-size: 2rem; color: #ff8c00; }
-.file-icon-i.red { color: #ef4444; }
-.file-icon-i.blue { color: #3b82f6; }
-.file-icon-i.green { color: #22c55e; }
 .reserva-icon-i { width: 40px; height: 40px; background: #ff8c00; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; }
 </style>

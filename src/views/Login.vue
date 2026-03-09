@@ -94,7 +94,7 @@ const handleLogin = async () => {
   justify-content: center;
   min-height: 100vh;
   padding: 20px;
-  background-color: #FFF7ED; /* Fondo naranja suave — cámbialo aquí */
+  background-color: #FFF7ED;
   box-sizing: border-box;
 }
 

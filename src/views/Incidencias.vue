@@ -237,7 +237,6 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-/* Usa variables CSS del dark-theme.css para adaptarse automáticamente */
 .incidencias-page {
   background-color: var(--bg-app, #f4f7f6);
   min-height: 100vh;
@@ -246,7 +245,6 @@ onMounted(async () => {
   flex-direction: column;
 }
 
-/* CABECERA */
 .page-top {
   display: flex;
   justify-content: space-between;
@@ -268,7 +266,6 @@ onMounted(async () => {
 }
 .btn-nueva.small { padding: 12px 24px; font-size: 0.88rem; }
 
-/* FILTROS */
 .filtros-bar {
   display: flex; align-items: center; gap: 8px; margin-bottom: 28px;
 }
@@ -287,7 +284,6 @@ onMounted(async () => {
 .filtro-btn:hover { border-color: #FFD9A0; color: #ff8c00; }
 .filtro-btn.active { background: #1a1a2e; color: white; border-color: #1a1a2e; }
 
-/* GRID */
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -295,7 +291,6 @@ onMounted(async () => {
   flex: 1;
 }
 
-/* EMPTY */
 .empty-state {
   flex: 1; display: flex; flex-direction: column;
   align-items: center; justify-content: center;
@@ -307,7 +302,6 @@ onMounted(async () => {
 .empty-state p  { margin: 0 0 20px 0; color: var(--text-secondary, #95a5a6); font-size: 0.9rem; }
 .info-msg { text-align: center; color: var(--text-secondary, #95a5a6); padding: 40px; font-size: 0.9rem; }
 
-/* MODAL DETALLE */
 .detalle-overlay {
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.6);
